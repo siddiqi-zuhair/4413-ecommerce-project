@@ -10,7 +10,7 @@ export default function CatalogItem({ item }: { item: Item }) {
         <p className="text-lg">{item.platform}</p>
         <p className="text-lg">${item.price}</p>
         <p className="text-lg">{item.quantity}</p>
-        <div className="aspect-square w-full h-full">
+        <div className="w-36 h-48 p-5">
            <img className="rounded-xl" src={item.image} alt={item.name} />
         </div>
       </div>
