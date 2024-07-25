@@ -5,7 +5,7 @@ export default function Header() {
     <header className="bg-gray-600 flex items-center justify-between">
       <Link href="/" passHref>
         <h1 className="text-4xl font-bold text-gray-600">
-          <img className="w-28" src="images/logo.png"></img>
+          <img className="w-28" src="/images/logo.png"></img>
         </h1>
       </Link>
       <nav className="flex items-center space-x-4 text-3xl font-extrabold text-zinc-200 pr-10">

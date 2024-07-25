@@ -3,18 +3,21 @@ import { Item } from "../../interfaces/item";
 
 export default function CatalogItem({ item }: { item: Item }) {
   return (
-    <Link href={`/catalog/${item.id}`} passHref>
-      <div className="bg-white m-4 p-4 rounded-xl shadow-lg items-start block w-72 h-96 overflow-hidden hover:scale-110 hover:transition-all transition-all">
-        <h2 className="text-2xl font-bold">{item.name}</h2>
-        <p className="text-lg">{item.description}</p>
-        <p className="text-lg">{item.platform}</p>
+    <Link href={`/catalog/${item._id}`} passHref>
+      <div className="bg-white m-4 p-4 rounded-xl shadow-lg items-start block w-[400px] h-[600px] overflow-hidden hover:scale-110 hover:transition-all transition-all">
+        <h2 className="text-xl font-bold">{item.name}</h2>
+        <p className="overflow-ellipsis overflow-hidden whitespace-nowrap ">{item.platform.map((p: string, index) => p + (index != item.platform.length-1 ? " | " : ''))}</p>
         <p className="text-lg">${item.price}</p>
-        <p className="text-lg">{item.quantity}</p>
-        <img
-          className="rounded-xl w-full h-auto object-fit"
-          src={item.image}
-          alt={item.name}
-        />
+          <img
+            className="rounded-xl w-full p-2"
+            src={
+              "https://images.igdb.com/igdb/image/upload/t_cover_big/" +
+              item.cover +
+              ".jpg"
+            }
+            alt={item.name}
+          />
+
       </div>
     </Link>
   );

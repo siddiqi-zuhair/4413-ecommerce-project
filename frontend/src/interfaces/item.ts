@@ -1,10 +1,11 @@
 export interface Item {
-    id: number;
+    _id: number;
     name: string;
     price: number;
     quantity: number;
     description: string;
-    platform: string;
-    image: string;
-    video: string;
+    cover: string;
+    platform: Array<string>;
+    photos: Array<string>;
+    videos: Array<string>;
   }

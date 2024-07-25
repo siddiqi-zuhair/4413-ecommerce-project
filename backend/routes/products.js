@@ -67,7 +67,7 @@ router.post("/createProducts", async (req, res) => {
         Authorization: `Bearer ${process.env.IGDB_ACCESS_TOKEN}`,
         "Content-Type": "application/json",
       },
-      body: "fields name, summary, screenshots.image_id, platforms.name, videos.video_id; sort aggregated_rating desc; where first_release_date >= 1577836800 & first_release_date <= 1735689600 & category = 0; limit 100;",
+      body: "fields name, summary, screenshots.image_id, platforms.name, videos.video_id, cover.image_id; sort aggregated_rating desc; where first_release_date >= 1577836800 & first_release_date <= 1735689600 & category = 0; limit 100;",
     });
     const data = await response.json();
     let products = [];
@@ -85,6 +85,7 @@ router.post("/createProducts", async (req, res) => {
         description: game.summary,
         platform: platforms,
         quantity: quantity,
+        cover: game.cover.image_id,
         price: price,
         photos: photos,
         videos: videos,
