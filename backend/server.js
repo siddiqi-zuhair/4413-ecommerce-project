@@ -21,6 +21,8 @@ const corsOptions = {
   app.use(cors(corsOptions));
   
 const usersRouter = require('./routes/users');
+const productsRoute = require('./routes/products');
 app.use('/users', usersRouter);
+app.use('/products', productsRoute);
 
 app.listen(5000, () => console.log('Server Started on port 5000'));
