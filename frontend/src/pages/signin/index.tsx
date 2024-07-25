@@ -1,8 +1,8 @@
-// pages/userAuth/loginView.tsx
+// src/pages/signin/index.tsx
 import { useState, FormEvent, MouseEvent } from "react";
 import { useRouter } from "next/router";
 
-export default function Login() {
+export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
@@ -17,7 +17,7 @@ export default function Login() {
     event.preventDefault();
     router.push("/signup");
   };
-  // idk if we need a forgot email button
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 text-gray-600">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
