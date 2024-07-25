@@ -1,16 +1,35 @@
-// src/pages/signin/index.tsx
 import { useState, FormEvent, MouseEvent } from "react";
 import { useRouter } from "next/router";
 
 export default function SignIn() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Handle login logic here, e.g., call an API endpoint
-    console.log("Logging in with", { email, password });
+    try {
+      const response = await fetch('http://localhost:5000/users/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('User signed in successfully:', data);
+        // Store the token in localStorage or cookie
+        localStorage.setItem('token', data.token);
+        router.push('/dashboard'); // Change this to the route you want to navigate to after sign-in
+      } else {
+        const errorText = await response.text();
+        console.error('Error signing in:', errorText);
+      }
+    } catch (error) {
+      console.error('Error signing in:', error);
+    }
   };
 
   const handleSignUp = (event: MouseEvent<HTMLButtonElement>) => {
@@ -25,11 +44,11 @@ export default function SignIn() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <input
-              type="email"
-              id="email"
-              placeholder="Email or phone"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              id="username"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -60,7 +79,7 @@ export default function SignIn() {
               Create account
             </button>
             <a href="#" className="text-blue-500">
-              Forgot email?
+              Forgot password?
             </a>
           </div>
         </form>

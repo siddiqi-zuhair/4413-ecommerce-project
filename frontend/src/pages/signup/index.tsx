@@ -14,7 +14,6 @@ export default function SignUp() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-
       const response = await fetch('http://localhost:5000/users', {
         method: 'POST',
         headers: {
@@ -22,7 +21,7 @@ export default function SignUp() {
         },
         body: JSON.stringify({
           username,
-          password_hash: password,
+          password, // Send raw password
           email,
           first_name: firstName,
           last_name: lastName,
