@@ -26,7 +26,7 @@ export default function Product() {
     <div className="bg-stone-50 flex flex-col items-start justify-start w-full p-20 h-full text-gray-600  min-h-screen">
       <div className="flex text-5xl font-black tracking-wider items-center justify-center ">
         <span className="border-r-2 border-gray-600 pr-2">{product.name}</span>{" "}
-        <span className="text-2xl pl-2"> {product.platform}</span>{" "}
+        <span className="text-xl pl-2 ">{product.platform.map((p: string, index) => p + (index != product.platform.length-1 ? " | " : ''))}</span>
       </div>
       <p className="text-4xl">{product.description}</p>
       <p className="text-4xl">${product.price}</p>
