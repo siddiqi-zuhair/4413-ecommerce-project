@@ -8,7 +8,7 @@ export default function Header() {
           <img className="w-28" src="/images/logo.png"></img>
         </h1>
       </Link>
-      <nav className="flex items-center space-x-4 text-3xl font-extrabold text-zinc-200 pr-10">
+      <nav className="flex items-center space-x-10 text-3xl font-extrabold text-zinc-200 pr-10">
         <Link href="/" passHref>
           Home
         </Link>
@@ -19,6 +19,11 @@ export default function Header() {
           <button className="p-5 rounded-xl text-xl bg-red-500 hover:bg-white hover:text-black">
             Sign in
           </button>
+        </Link>
+        <Link href="/cart" passHref>
+          <div className="py-2">
+            <img src="/images/bag.svg" alt="cart" className="w-10" />
+          </div>
         </Link>
       </nav>
     </header>
