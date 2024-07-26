@@ -52,6 +52,7 @@ export default function Product() {
       }
 
       localStorage.setItem("cart", JSON.stringify(updatedCart));
+      router.push("/cart");
     } else {
       console.error("Product is not defined");
     }
