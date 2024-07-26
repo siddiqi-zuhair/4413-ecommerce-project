@@ -12,6 +12,7 @@ interface photoVideo {
 export default function Product() {
   const [product, setProduct] = useState<Item>();
   const [videosAndPhotos, setVideosAndPhotos] = useState<photoVideo[]>([]);
+  const [quantity, setQuantity] = useState(1);
   const router = useRouter();
   const param = router.query.productID;
   useEffect(() => {
@@ -20,6 +21,41 @@ export default function Product() {
       fetchProduct();
     }
   }, [router.isReady, param]);
+  const addToCart = () => {
+    let cart = localStorage.getItem("cart");
+    let updatedCart = [];
+
+    if (product) {
+      if (cart) {
+        updatedCart = JSON.parse(cart);
+        let itemExists = false;
+
+        // Check if the item is already in the cart and update the quantity
+        for (let i = 0; i < updatedCart.length; i++) {
+          if (updatedCart[i].id === product._id) {
+            if(updatedCart[i].quantity + quantity > product.quantity){
+              console.log("Not enough stock");
+              return;
+            }
+            updatedCart[i].quantity += quantity;
+            itemExists = true;
+            break;
+          }
+        }
+
+        // If the item is not in the cart, add it
+        if (!itemExists) {
+          updatedCart.push({ id: product._id, quantity });
+        }
+      } else {
+        updatedCart = [{ id: product._id, quantity }];
+      }
+
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+    } else {
+      console.error("Product is not defined");
+    }
+  };
 
   const fetchProduct = async () => {
     console.log(param);
@@ -72,8 +108,23 @@ export default function Product() {
           <p className="w-fit border p-2 rounded-xl bg-red-500 text-white font-bold">
             {product.quantity} in stock
           </p>
+          <p className="text-3xl font-black border-2 border-gray-500 w-fit rounded-2xl p-2">
+            Quantity:{" "}
+            <input
+              type="number"
+              defaultValue="1"
+              min={1}
+              value={quantity}
+              onChange={(e) => setQuantity(parseInt(e.target.value))}
+              max={product.quantity}
+              className=" bg-transparent p-2 rounded-xl w-fit"
+            />
+          </p>
 
-          <button className="bg-red-500 hover:bg-gray-500 font-black text-white p-2 text-3xl rounded-xl">
+          <button
+            onClick={addToCart}
+            className="bg-red-500 hover:bg-gray-500 font-black text-white p-2 text-3xl rounded-xl"
+          >
             Add to cart
           </button>
           <p className="text-3xl font-black pt-5">Description</p>
