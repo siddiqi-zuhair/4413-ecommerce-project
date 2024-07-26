@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Product = require("../models/Product"); // Use consistent naming
+const mongoose = require("mongoose");
 
 module.exports = router;
 
@@ -9,6 +10,25 @@ module.exports = router;
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find();
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get multiple products by ID
+router.get("/multiple", async (req, res) => {
+  try {
+    // Get IDs from the query parameter
+    const ids = req.query.ids ? req.query.ids.split(",") : [];
+
+    // Ensure IDs are in ObjectId format (optional validation)
+    if (!ids.every((id) => mongoose.Types.ObjectId.isValid(id))) {
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
+
+    // Fetch products by IDs
+    const products = await Product.find({ _id: { $in: ids } });
     res.json(products);
   } catch (err) {
     res.status(500).json({ message: err.message });
