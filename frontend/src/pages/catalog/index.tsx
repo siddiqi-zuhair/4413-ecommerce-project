@@ -4,7 +4,8 @@ import CatalogItem from "@/components/CatalogItem";
 import { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
 import Dropdown from "@/components/Dropdown";
-export default function catalog() {
+
+export default function Catalog() {
   const sortOptions = ["Price", "Name"];
   const [filterOptions, setFilterOptions] = useState<string[]>(["All"]);
   const [chosenSort, setChosenSort] = useState<string>("");
