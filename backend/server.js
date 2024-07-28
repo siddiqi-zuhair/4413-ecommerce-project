@@ -3,7 +3,7 @@ require('dotenv').config();
 const express = require("express");
 const app = express();
 const mongoose = require('mongoose');
-const cors = require('cors'); // Import the cors package
+const cors = require('cors');
 
 mongoose.connect(process.env.DATABASE_URL);
 const db = mongoose.connection;
@@ -14,7 +14,7 @@ app.use(cors()); // Use the cors middleware
 app.use(express.json());
 
 const corsOptions = {
-    origin: 'http://localhost:3000', // Your frontend URL
+    origin: 'http://localhost:3000', 
     optionsSuccessStatus: 200
   };
   
