@@ -1,54 +1,52 @@
-import { useState, FormEvent } from "react";
-import { useRouter } from "next/router";
+import React, { useState, FormEvent } from 'react';
+import { useRouter } from 'next/router';
 
 export default function SignUp() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
-
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
   const router = useRouter();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/users', {
+      const response = await fetch('http://localhost:5000/users/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           username,
-          password, // Send raw password
+          password,
           email,
           first_name: firstName,
           last_name: lastName,
-          phone_number: phone
+          phone_number: phone,
         }),
       });
 
       if (response.ok) {
-        console.log('User registered successfully');
         router.push('/signin');
       } else {
         const errorText = await response.text();
-        console.error('Error registering user:', errorText);
+        console.error('Error signing up:', errorText);
       }
     } catch (error) {
-      console.error('Error registering user:', error);
+      console.error('Error signing up:', error);
     }
   };
 
   const handleLogin = () => {
-    router.push("/signin");
+    router.push('/signin');
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-112px)] bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md text-gray-600">
-        <h2 className="text-2xl font-semibold mb-6 text-center">Sign Up</h2>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 text-gray-600">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 className="text-3xl font-semibold mb-6 text-center">Sign Up</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex space-x-4">
             <input

@@ -2,7 +2,32 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const signIn = async (req, res, next) => {
+// Sign-Up Controller
+exports.signUp = async (req, res) => {
+  const { username, password, email, first_name, last_name, phone_number } = req.body;
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = new User({
+      username,
+      password: hashedPassword,
+      email,
+      first_name,
+      last_name,
+      phone_number,
+    });
+
+    const newUser = await user.save();
+    res.status(201).json(newUser);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+
+// Sign-In Controller
+exports.signIn = async (req, res) => {
   const { username, password } = req.body;
 
   try {
@@ -19,20 +44,26 @@ const signIn = async (req, res, next) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.json({ token });
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: err.message });
   }
 };
 
-const getMe = async (req, res, next) => {
+// Get Me Controller
+exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
     res.json(user);
   } catch (err) {
-    next(err);
+    res.status(500).json({ message: err.message });
   }
 };
 
-module.exports = { signIn, getMe };
+// Get All Users Controller
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

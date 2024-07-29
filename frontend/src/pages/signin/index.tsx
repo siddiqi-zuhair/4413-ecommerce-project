@@ -32,6 +32,10 @@ export default function SignIn() {
     }
   };
 
+  const handleSignUp = () => {
+    router.push('/signup');
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 text-gray-600">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
@@ -66,6 +70,17 @@ export default function SignIn() {
             Sign In
           </button>
         </form>
+        <div className="flex justify-between items-center mt-4">
+          <button
+            onClick={handleSignUp}
+            className="text-blue-500"
+          >
+            Create account
+          </button>
+          <a href="#" className="text-blue-500">
+            Forgot password?
+          </a>
+        </div>
       </div>
     </div>
   );
