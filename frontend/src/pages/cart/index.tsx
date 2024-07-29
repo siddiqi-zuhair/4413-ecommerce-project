@@ -2,13 +2,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Cart() {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
 
   const calculateTotal = () => {
     let total = 0;
     for (let i = 0; i < cart.length; i++) {
-      total += cart[i]?.price * cart[i]?.ordered_quantity;
+      total += cart[i].price * cart[i].ordered_quantity;
     }
     return total;
   };
@@ -92,6 +92,9 @@ export default function Cart() {
             <p className="text-xl font-semibold">
               ${calculateTotal().toFixed(2)}
             </p>
+            <button className="bg-red-500 text-white px-4 py-2 rounded-lg">
+                Checkout
+            </button>
           </div>
         </div>
       </div>
