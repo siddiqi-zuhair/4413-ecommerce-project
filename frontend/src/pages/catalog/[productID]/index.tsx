@@ -17,7 +17,6 @@ export default function Product() {
   const param = router.query.productID;
   useEffect(() => {
     if (router.isReady && param) {
-      console.log(param);
       fetchProduct();
     }
   }, [router.isReady, param]);
@@ -33,11 +32,11 @@ export default function Product() {
         // Check if the item is already in the cart and update the quantity
         for (let i = 0; i < updatedCart.length; i++) {
           if (updatedCart[i].id === product._id) {
-            if(updatedCart[i].quantity + quantity > product.quantity){
+            if (updatedCart[i].ordered_quantity + quantity > product.quantity) {
               console.log("Not enough stock");
               return;
             }
-            updatedCart[i].quantity += quantity;
+            updatedCart[i].ordered_quantity += quantity;
             itemExists = true;
             break;
           }
@@ -45,14 +44,15 @@ export default function Product() {
 
         // If the item is not in the cart, add it
         if (!itemExists) {
-          updatedCart.push({ id: product._id, quantity });
+          updatedCart.push({ id: product._id, ordered_quantity: quantity });
         }
       } else {
-        updatedCart = [{ id: product._id, quantity }];
+        updatedCart = [{ id: product._id, ordered_quantity: quantity }];
       }
 
       localStorage.setItem("cart", JSON.stringify(updatedCart));
-      router.push("/cart");
+      const event = new Event("cartChange");
+      window.dispatchEvent(event);
     } else {
       console.error("Product is not defined");
     }

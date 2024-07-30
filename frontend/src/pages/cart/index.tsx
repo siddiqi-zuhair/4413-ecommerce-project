@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 
 export default function Cart() {
   const [cart, setCart] = useState<any[]>([]);
-  const [total, setTotal] = useState(0);
 
   const calculateTotal = () => {
     let total = 0;
@@ -13,19 +12,32 @@ export default function Cart() {
     return total;
   };
 
-  const fetchProducts = async () => {
-    // Retrieve the cart from localStorage
-    const cart = localStorage.getItem("cart");
+  const changeQuantity = (e: any) => {
+    const updatedCart = cart.map((product) => {
+      if (product._id === e.target.id) {
+        return {
+          ...product,
+          ordered_quantity: Number(e.target.value),
+        };
+      }
+      return product;
+    });
+    setCart(updatedCart);
+    const cartToStore = updatedCart.map((item) => ({
+      id: item._id,
+      ordered_quantity: item.ordered_quantity,
+    }));
+    localStorage.setItem("cart", JSON.stringify(cartToStore));
+    window.dispatchEvent(new Event("cartChange"));
+  };
 
-    // Check if cart exists and parse it
+  const fetchProducts = async () => {
+    const cart = localStorage.getItem("cart");
     if (cart) {
       const cartItems = JSON.parse(cart);
       const ids = cartItems.map((item: { id: string }) => item.id);
-
-      // Fetch products based on IDs
       if (ids.length > 0) {
         try {
-          // Replace with your actual endpoint
           const response = await fetch(
             `http://localhost:5000/products/multiple?ids=${ids.join(",")}`
           );
@@ -33,28 +45,25 @@ export default function Cart() {
             throw new Error("Network response was not ok");
           }
           const products = await response.json();
-          //set the cart with the ordered quantity of each product
-          for (let i = 0; i < products.length; i++) {
-            products[i].ordered_quantity = cartItems[i].quantity;
-          }
-          setCart(products);
-
-          // Handle the fetched products as needed
-          // For example, set them in state or update the UI
+          const productsWithQuantity = products.map((product) => {
+            const cartItem = cartItems.find((item) => item.id === product._id);
+            return {
+              ...product,
+              ordered_quantity: cartItem ? cartItem.ordered_quantity : 1,
+            };
+          });
+          setCart(productsWithQuantity);
         } catch (error) {
           console.error("Error fetching products:", error);
         }
-      } else {
-        console.log("No product IDs found in cart.");
       }
-    } else {
-      console.log("Cart is empty.");
     }
   };
 
   useEffect(() => {
     fetchProducts();
   }, []);
+
   return (
     <div className="flex items-start justify-center min-h-[calc(100vh-112px)] bg-gray-100 text-gray-600">
       <h2 className="text-8xl font-black mb-6 text-left pt-5 pl-5">Cart</h2>
@@ -71,8 +80,20 @@ export default function Cart() {
                 </Link>
                 <p className="text-gray-500 text-xl">Price: ${product.price}</p>
                 <p className="text-gray-500 text-xl">
-                  Quantity: {product.ordered_quantity}
+                  Quantity:{" "}
+                  <input
+                    className="bg-gray-100 rounded-lg w-fit p-2"
+                    type="number"
+                    min={1}
+                    max={product.quantity}
+                    onChange={changeQuantity}
+                    id={product._id}
+                    value={product.ordered_quantity}
+                  />
                 </p>
+                <button className="bg-red-500 text-white px-4 py-2 rounded-lg">
+                  Remove
+                </button>
               </div>
               <div>
                 <img
@@ -82,7 +103,7 @@ export default function Cart() {
                     ".jpg"
                   }
                   alt={product.name}
-                  className="w-32 h-auto object-cover "
+                  className="w-32 h-auto object-cover"
                 />
               </div>
             </div>
@@ -93,7 +114,7 @@ export default function Cart() {
               ${calculateTotal().toFixed(2)}
             </p>
             <button className="bg-red-500 text-white px-4 py-2 rounded-lg">
-                Checkout
+              Checkout
             </button>
           </div>
         </div>

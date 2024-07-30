@@ -1,6 +1,6 @@
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/context/authContext';
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/context/authContext";
 
 export default function Header() {
   const [quantity, setQuantity] = useState(0);
@@ -10,7 +10,6 @@ export default function Header() {
     if (typeof window === "undefined") {
       return 0;
     }
-
     try {
       let cart = localStorage.getItem("cart");
       let quantity = 0;
@@ -19,7 +18,7 @@ export default function Header() {
         let cartItems = JSON.parse(cart);
 
         for (let i = 0; i < cartItems.length; i++) {
-          quantity += cartItems[i].quantity;
+          quantity += parseInt(cartItems[i].ordered_quantity);
         }
       }
 
@@ -29,10 +28,23 @@ export default function Header() {
       return 0;
     }
   };
+  const updateQuantity = () => {
+    setQuantity(getQuantity());
+  };
 
   useEffect(() => {
-    const quantity = getQuantity();
-    setQuantity(quantity);
+    // Initial quantity update
+    updateQuantity();
+    // Update quantity when custom event is dispatched
+    const handleCartChange = () => {
+      updateQuantity();
+    };
+
+    window.addEventListener("cartChange", handleCartChange);
+
+    return () => {
+      window.removeEventListener("cartChange", handleCartChange);
+    };
   }, []);
 
   return (
@@ -55,7 +67,10 @@ export default function Header() {
           </Link>
         )}
         {isAuthenticated ? (
-          <button onClick={logout} className="p-5 rounded-xl text-xl bg-red-500 hover:bg-white hover:text-black">
+          <button
+            onClick={logout}
+            className="p-5 rounded-xl text-xl bg-red-500 hover:bg-white hover:text-black"
+          >
             Sign Out
           </button>
         ) : (
