@@ -59,6 +59,33 @@ exports.getMe = async (req, res) => {
   }
 };
 
+// Update User Controller
+exports.updateUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const { username, email, first_name, last_name, phone_number, password } = req.body;
+
+    if (username) user.username = username;
+    if (email) user.email = email;
+    if (first_name) user.first_name = first_name;
+    if (last_name) user.last_name = last_name;
+    if (phone_number) user.phone_number = phone_number;
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+    }
+
+    await user.save();
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // Get All Users Controller
 exports.getAllUsers = async (req, res) => {
   try {
