@@ -12,6 +12,17 @@ export default function Cart() {
     return total;
   };
 
+
+  const removeProduct = (e: any) => {
+    const updatedCart = cart.filter((product) => product._id !== e.target.id);
+    setCart(updatedCart);
+    const cartToStore = updatedCart.map((item) => ({
+      id: item._id,
+      ordered_quantity: item.ordered_quantity,
+    }));
+    localStorage.setItem("cart", JSON.stringify(cartToStore));
+    window.dispatchEvent(new Event("cartChange"));
+  }
   const changeQuantity = (e: any) => {
     const updatedCart = cart.map((product) => {
       if (product._id === e.target.id) {
@@ -91,7 +102,7 @@ export default function Cart() {
                     value={product.ordered_quantity}
                   />
                 </p>
-                <button className="bg-red-500 text-white px-4 py-2 rounded-lg">
+                <button id={product._id} onClick={removeProduct} className="bg-red-500 text-white px-4 py-2 rounded-lg">
                   Remove
                 </button>
               </div>
