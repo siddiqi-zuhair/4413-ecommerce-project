@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 // Sign-Up Controller
 exports.signUp = async (req, res) => {
-  const { username, password, email, first_name, last_name, phone_number } = req.body;
+  const { username, password, email, first_name, last_name, phone_number, is_admin } = req.body;
 
   try {
     const salt = await bcrypt.genSalt(10);
@@ -17,6 +17,7 @@ exports.signUp = async (req, res) => {
       first_name,
       last_name,
       phone_number,
+      is_admin: is_admin || false // Default to false if not provided
     });
 
     const newUser = await user.save();
@@ -41,7 +42,7 @@ exports.signIn = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id, is_admin: user.is_admin }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.json({ token });
   } catch (err) {
     res.status(500).json({ message: err.message });

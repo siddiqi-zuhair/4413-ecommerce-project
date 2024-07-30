@@ -7,6 +7,7 @@ type User = {
   first_name: string;
   last_name: string;
   phone_number: string;
+  is_admin: boolean;
 };
 
 export default function Dashboard() {
@@ -53,6 +54,7 @@ export default function Dashboard() {
         <p><strong>First Name:</strong> {user.first_name}</p>
         <p><strong>Last Name:</strong> {user.last_name}</p>
         <p><strong>Phone Number:</strong> {user.phone_number}</p>
+        <p><strong>Admin Status:</strong> {user.is_admin ? 'Yes' : 'No'}</p>
       </div>
     </div>
   );

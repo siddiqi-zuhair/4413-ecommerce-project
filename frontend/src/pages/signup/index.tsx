@@ -8,6 +8,7 @@ export default function SignUp() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
+  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -25,6 +26,7 @@ export default function SignUp() {
           first_name: firstName,
           last_name: lastName,
           phone_number: phone,
+          is_admin: isAdmin
         }),
       });
 
@@ -106,8 +108,7 @@ export default function SignUp() {
           />
           <button
             type="submit"
-            className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-          >
+            className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-700">
             Create account
           </button>
           <p className="text-center text-sm mt-4 text-gray-600">

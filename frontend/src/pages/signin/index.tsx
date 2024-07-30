@@ -65,16 +65,14 @@ export default function SignIn() {
           </div>
           <button
             type="submit"
-            className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-          >
+            className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-700">
             Sign In
           </button>
         </form>
         <div className="flex justify-between items-center mt-4">
           <button
             onClick={handleSignUp}
-            className="text-blue-500"
-          >
+            className="text-blue-500">
             Create account
           </button>
           <a href="#" className="text-blue-500">
