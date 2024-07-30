@@ -19,7 +19,8 @@ export default function getUser() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      router.push('/signin');
+      setUser(null);
+      setLoading(false);
       return;
     }
 
@@ -44,7 +45,8 @@ export default function getUser() {
       console.error('Error fetching user info:', error);
       setError('Failed to load user data.');
       setLoading(false);
-      router.push('/signin');
+      setUser(null);
+      localStorage.removeItem('token');
     });
   }, [router]);
 

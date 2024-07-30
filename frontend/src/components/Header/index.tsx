@@ -1,8 +1,10 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useAuth } from '@/context/authContext';
 
 export default function Header() {
   const [quantity, setQuantity] = useState(0);
+  const { isAuthenticated, user, logout } = useAuth();
 
   const getQuantity = () => {
     if (typeof window === "undefined") {
@@ -47,14 +49,22 @@ export default function Header() {
         <Link href="/catalog" className="hover:text-red-500" passHref>
           Catalog
         </Link>
-        <Link href="/dashboard" className="hover:text-red-500" passHref>
-          Dashboard
-        </Link>
-        <Link href="/signin" passHref>
-          <button className="p-5 rounded-xl text-xl bg-red-500 hover:bg-white hover:text-black">
-            Sign in
+        {isAuthenticated && (
+          <Link href="/dashboard" className="hover:text-red-500" passHref>
+            Dashboard
+          </Link>
+        )}
+        {isAuthenticated ? (
+          <button onClick={logout} className="p-5 rounded-xl text-xl bg-red-500 hover:bg-white hover:text-black">
+            Sign Out
           </button>
-        </Link>
+        ) : (
+          <Link href="/signin" passHref>
+            <button className="p-5 rounded-xl text-xl bg-red-500 hover:bg-white hover:text-black">
+              Sign in
+            </button>
+          </Link>
+        )}
         <Link href="/cart" passHref>
           <div className="py-2 relative">
             <img src="/images/bag.svg" alt="cart" className="w-10" />
