@@ -119,6 +119,30 @@ router.post("/createProducts", async (req, res) => {
   }
 });
 
+// Create a Product from admin
+router.post("/", async (req, res) => {
+  const { name, description, platform, cover, quantity, price, photos, videos } = req.body;
+
+  const product = new Product({
+    name,
+    description,
+    platform,
+    cover,
+    quantity,
+    price,
+    photos,
+    videos,
+  });
+
+  try {
+    const newProduct = await product.save();
+    res.status(201).json(newProduct);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+
 async function getProduct(req, res, next) {
   let product;
   try {
