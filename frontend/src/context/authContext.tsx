@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useRouter } from 'next/router';
 
 type User = {
+  _id: any;
+  id: any;
   username: string;
   email: string;
   first_name: string;

@@ -1,20 +1,20 @@
-import React, { useState, FormEvent } from 'react';
-import { useRouter } from 'next/router';
-import { useAuth } from '@/context/authContext';
+import React, { useState, FormEvent } from "react";
+import { useRouter } from "next/router";
+import { useAuth } from "@/context/authContext";
 
 export default function SignIn() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const { login } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/users/signin', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5000/users/signin", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
       });
@@ -22,18 +22,21 @@ export default function SignIn() {
       if (response.ok) {
         const data = await response.json();
         login(data.token);
-        router.push('/dashboard');
+        router.push("/dashboard");
+        localStorage.removeItem("cart");
+        const event = new Event("cartChange");
+        window.dispatchEvent(event);
       } else {
         const errorText = await response.text();
-        console.error('Error signing in:', errorText);
+        console.error("Error signing in:", errorText);
       }
     } catch (error) {
-      console.error('Error signing in:', error);
+      console.error("Error signing in:", error);
     }
   };
 
   const handleSignUp = () => {
-    router.push('/signup');
+    router.push("/signup");
   };
 
   return (
@@ -65,14 +68,13 @@ export default function SignIn() {
           </div>
           <button
             type="submit"
-            className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-700">
+            className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+          >
             Sign In
           </button>
         </form>
         <div className="flex justify-between items-center mt-4">
-          <button
-            onClick={handleSignUp}
-            className="text-blue-500">
+          <button onClick={handleSignUp} className="text-blue-500">
             Create account
           </button>
           <a href="#" className="text-blue-500">

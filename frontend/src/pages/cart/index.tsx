@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Item } from "@/interfaces/item";
 
 export default function Cart() {
   const [cart, setCart] = useState<any[]>([]);
@@ -56,8 +57,8 @@ export default function Cart() {
             throw new Error("Network response was not ok");
           }
           const products = await response.json();
-          const productsWithQuantity = products.map((product) => {
-            const cartItem = cartItems.find((item) => item.id === product._id);
+        const productsWithQuantity = products.map((product: Item) => {
+            const cartItem = cartItems.find((item: Item) => item._id === product._id);
             return {
               ...product,
               ordered_quantity: cartItem ? cartItem.ordered_quantity : 1,
