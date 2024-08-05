@@ -6,6 +6,7 @@ type User = {
   id: any;
   username: string;
   email: string;
+  default_address: string;
   first_name: string;
   last_name: string;
   phone_number: string;

@@ -1,10 +1,19 @@
-const User = require('../models/User');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const User = require("../models/User");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 // Sign-Up Controller
 exports.signUp = async (req, res) => {
-  const { username, password, email, first_name, last_name, phone_number, is_admin } = req.body;
+  const {
+    username,
+    password,
+    email,
+    first_name,
+    default_address,
+    last_name,
+    phone_number,
+    is_admin,
+  } = req.body;
 
   try {
     const salt = await bcrypt.genSalt(10);
@@ -14,10 +23,11 @@ exports.signUp = async (req, res) => {
       username,
       password: hashedPassword,
       email,
+      default_address,
       first_name,
       last_name,
       phone_number,
-      is_admin: is_admin || false // Default to false if not provided
+      is_admin: is_admin || false, // Default to false if not provided
     });
 
     const newUser = await user.save();
@@ -34,15 +44,19 @@ exports.signIn = async (req, res) => {
   try {
     const user = await User.findOne({ username });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ id: user._id, is_admin: user.is_admin }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { id: user._id, is_admin: user.is_admin },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
     res.json({ token });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -52,7 +66,7 @@ exports.signIn = async (req, res) => {
 // Get Me Controller
 exports.getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select("-password");
     res.json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -64,15 +78,24 @@ exports.updateUser = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    const { username, email, first_name, last_name, phone_number, password } = req.body;
+    const {
+      username,
+      email,
+      first_name,
+      last_name,
+      default_address,
+      phone_number,
+      password,
+    } = req.body;
 
     if (username) user.username = username;
     if (email) user.email = email;
     if (first_name) user.first_name = first_name;
     if (last_name) user.last_name = last_name;
+    if (default_address) user.default_address = default_address;
     if (phone_number) user.phone_number = phone_number;
     if (password) {
       const salt = await bcrypt.genSalt(10);
@@ -89,7 +112,7 @@ exports.updateUser = async (req, res) => {
 // Get All Users Controller
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-password');
+    const users = await User.find().select("-password");
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -101,10 +124,10 @@ exports.deleteUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
     await user.remove();
-    res.json({ message: 'User deleted' });
+    res.json({ message: "User deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -115,7 +138,7 @@ exports.getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
     res.json(user);
   } catch (error) {

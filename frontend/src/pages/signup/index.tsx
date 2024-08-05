@@ -1,23 +1,25 @@
-import React, { useState, FormEvent } from 'react';
-import { useRouter } from 'next/router';
+import React, { useState, FormEvent } from "react";
+import { useRouter } from "next/router";
 
 export default function SignUp() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     try {
-      const response = await fetch('http://localhost:5000/users/signup', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5000/users/signup", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           username,
@@ -26,23 +28,24 @@ export default function SignUp() {
           first_name: firstName,
           last_name: lastName,
           phone_number: phone,
-          is_admin: isAdmin
+          default_address: address, // Use the entered address
+          is_admin: isAdmin,
         }),
       });
 
       if (response.ok) {
-        router.push('/signin');
+        router.push("/signin");
       } else {
         const errorText = await response.text();
-        console.error('Error signing up:', errorText);
+        console.error("Error signing up:", errorText);
       }
     } catch (error) {
-      console.error('Error signing up:', error);
+      console.error("Error during signup:", error);
     }
   };
 
   const handleLogin = () => {
-    router.push('/signin');
+    router.push("/signin");
   };
 
   return (
@@ -98,6 +101,15 @@ export default function SignUp() {
             className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <input
+            type="text"
+            id="address"
+            placeholder="Address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
             type="password"
             id="password"
             placeholder="Password"
@@ -108,7 +120,8 @@ export default function SignUp() {
           />
           <button
             type="submit"
-            className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-700">
+            className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+          >
             Create account
           </button>
           <p className="text-center text-sm mt-4 text-gray-600">

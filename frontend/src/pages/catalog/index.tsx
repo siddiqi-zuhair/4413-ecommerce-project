@@ -30,6 +30,13 @@ export default function Catalog() {
       setFilterOptions(temp);
     }
   };
+  const filterByKeyword = (e: any) => {
+    const keyword = e.target.value;
+    const filteredItems = items.filter((item) =>
+      item.name.toLowerCase().includes(keyword.toLowerCase())
+    );
+    setFilteredItems(filteredItems);
+  }
   useEffect(() => {
     if (chosenSort === "Price") {
       setFilteredItems((prev) => [...prev].sort((a, b) => a.price - b.price));
@@ -57,17 +64,23 @@ export default function Catalog() {
   ) : (
     <div className="bg-stone-50 flex flex-col items-start justify-start w-full h-full text-gray-600 ">
       <h1 className="text-8xl font-black tracking-wider p-10">Catalog</h1>
-      <div className="flex items-center justify-center text-3xl font-extrabold text-gray-500 px-10 gap-5">
-        <Dropdown
-          label="Sort by"
-          options={sortOptions}
-          setChosenSort={setChosenSort}
-        />
-        <Dropdown
-          label="Filter by platform"
-          options={filterOptions}
-          setChosenSort={setChosenFilter}
-        />
+      <div className="flex flex-row justify-between w-full">
+        <div className="flex items-center justify-center text-3xl font-extrabold text-gray-500 px-10 gap-5">
+          <Dropdown
+            label="Sort by"
+            options={sortOptions}
+            setChosenSort={setChosenSort}
+          />
+          <Dropdown
+            label="Filter by platform"
+            options={filterOptions}
+            setChosenSort={setChosenFilter}
+          />
+
+        </div>
+        <div>
+          <input type="text" placeholder="Search" className="w-3/4 p-2 bg-slate-50 outline-black outline outline-1 rounded-2xl" onChange={filterByKeyword} />
+        </div>
       </div>
 
       <div className="flex flex-wrap justify-center pt-10">

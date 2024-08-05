@@ -6,36 +6,60 @@ export default function Header() {
   const [quantity, setQuantity] = useState(0);
   const { isAuthenticated, user, logout } = useAuth();
 
-  const getQuantity = () => {
+  const getQuantity = async () => {
     if (typeof window === "undefined") {
       return 0;
     }
-    try {
-      let cart = localStorage.getItem("cart");
-      let quantity = 0;
 
-      if (cart) {
-        let cartItems = JSON.parse(cart);
+    if (!user) {
+      try {
+        let cart = localStorage.getItem("cart");
+        let quantity = 0;
 
-        for (let i = 0; i < cartItems.length; i++) {
-          quantity += parseInt(cartItems[i].ordered_quantity);
+        if (cart) {
+          let cartItems = JSON.parse(cart);
+
+          for (let i = 0; i < cartItems.length; i++) {
+            quantity += parseInt(cartItems[i].ordered_quantity);
+          }
         }
-      }
 
-      return quantity;
-    } catch (error) {
-      console.error("Error reading cart from localStorage:", error);
-      return 0;
+        return quantity;
+      } catch (error) {
+        console.error("Error reading cart from localStorage:", error);
+        return 0;
+      }
+    } else {
+      try {
+        let response = await fetch(`http://localhost:5000/carts/${user._id}`);
+        let cart = await response.json();
+        let quantity = 0;
+
+        if (cart.products && cart.products.length > 0) {
+          for (let i = 0; i < cart.products.length; i++) {
+            quantity += parseInt(cart.products[i].ordered_quantity);
+          }
+        }
+
+        return quantity;
+      } catch (error) {
+        console.error("Error fetching cart from server:", error);
+        return 0;
+      }
     }
   };
-  const updateQuantity = () => {
-    setQuantity(getQuantity());
+
+  const updateQuantity = async () => {
+    setQuantity(await getQuantity());
   };
 
   useEffect(() => {
-    // Initial quantity update
+    if (typeof isAuthenticated === "undefined") {
+      return; // wait until the authentication state is known
+    }
+
     updateQuantity();
-    // Update quantity when custom event is dispatched
+
     const handleCartChange = () => {
       updateQuantity();
     };
@@ -45,7 +69,7 @@ export default function Header() {
     return () => {
       window.removeEventListener("cartChange", handleCartChange);
     };
-  }, []);
+  }, [isAuthenticated]); // Re-run when the authentication state changes
 
   return (
     <header className="bg-gray-600 flex items-center justify-between p-4">

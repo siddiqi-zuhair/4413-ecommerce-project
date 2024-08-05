@@ -20,9 +20,13 @@ app.use(express.json());
 const usersRouter = require("./routes/users");
 const productsRouter = require("./routes/products");
 const cartsRouter = require("./routes/carts");
+const stripeRouter = require("./routes/stripe");
+const ordersRouter = require("./routes/orders");
 app.use("/users", usersRouter);
 app.use("/products", productsRouter);
 app.use("/carts", cartsRouter);
+app.use("/stripe", stripeRouter);
+app.use("/orders", ordersRouter);
 
 // Start the server
 const PORT = process.env.PORT || 5000;

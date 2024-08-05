@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Item } from "@/interfaces/item";
+import { useAuth } from "@/context/authContext";
+import router from "next/router";
 
 export default function Cart() {
   const [cart, setCart] = useState<any[]>([]);
+  const { user, isAuthenticated } = useAuth();
+  const cartChange = new Event("cartChange");
+  const [cartID, setCartID] = useState<string | null>(null);
 
   const calculateTotal = () => {
     let total = 0;
@@ -13,20 +17,59 @@ export default function Cart() {
     return total;
   };
 
+  const goToCheckout = () => {
+    console.log(cartID);
+    if (!user) {
+      router.push("/login");
+      return;
+    } else {
+      router.push(`/checkout/${cartID}`);
+    }
+  };
 
   const removeProduct = (e: any) => {
     const updatedCart = cart.filter((product) => product._id !== e.target.id);
     setCart(updatedCart);
+    if (updatedCart.length === 0 && !user) {
+      localStorage.removeItem("cart");
+      window.dispatchEvent(cartChange);
+      return;
+    } else if (updatedCart.length === 0 && user) {
+      fetch(`http://localhost:5000/carts/${user._id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      window.dispatchEvent(cartChange);
+      return;
+    }
     const cartToStore = updatedCart.map((item) => ({
       id: item._id,
       ordered_quantity: item.ordered_quantity,
     }));
-    localStorage.setItem("cart", JSON.stringify(cartToStore));
-    window.dispatchEvent(new Event("cartChange"));
-  }
+    if (!user) {
+      localStorage.setItem("cart", JSON.stringify(cartToStore));
+    } else {
+      fetch(`http://localhost:5000/carts/${user._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ products: cartToStore }),
+      });
+    }
+    window.dispatchEvent(cartChange);
+  };
   const changeQuantity = (e: any) => {
     const updatedCart = cart.map((product) => {
       if (product._id === e.target.id) {
+        if (Number(e.target.value) > product.quantity) {
+          alert("We only have ${product.quantity} in stock.");
+          return product;
+        } else if (Number(e.target.value) < 1) {
+          return product;
+        }
         return {
           ...product,
           ordered_quantity: Number(e.target.value),
@@ -39,42 +82,62 @@ export default function Cart() {
       id: item._id,
       ordered_quantity: item.ordered_quantity,
     }));
-    localStorage.setItem("cart", JSON.stringify(cartToStore));
+    if (!user) {
+      localStorage.setItem("cart", JSON.stringify(cartToStore));
+    } else {
+      fetch(`http://localhost:5000/carts/${user._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ products: cartToStore }),
+      });
+    }
     window.dispatchEvent(new Event("cartChange"));
   };
 
   const fetchProducts = async () => {
-    const cart = localStorage.getItem("cart");
-    if (cart) {
-      const cartItems = JSON.parse(cart);
-      const ids = cartItems.map((item: { id: string }) => item.id);
-      if (ids.length > 0) {
-        try {
-          const response = await fetch(
-            `http://localhost:5000/products/multiple?ids=${ids.join(",")}`
-          );
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          const products = await response.json();
-        const productsWithQuantity = products.map((product: Item) => {
-            const cartItem = cartItems.find((item: Item) => item._id === product._id);
-            return {
-              ...product,
-              ordered_quantity: cartItem ? cartItem.ordered_quantity : 1,
-            };
-          });
-          setCart(productsWithQuantity);
-        } catch (error) {
-          console.error("Error fetching products:", error);
+    let productsWithQuantity = [];
+
+    // Check if the user is logged in
+    if (!user) {
+      // Fetch cart from localStorage
+      const localStorageCart = localStorage.getItem("cart");
+      if (localStorageCart) {
+        const cartItems = JSON.parse(localStorageCart);
+        productsWithQuantity = cartItems.map((item: any) => ({
+          ...item,
+          ordered_quantity: item.ordered_quantity || 1, // Assuming ordered_quantity exists in localStorage
+        }));
+      }
+    } else {
+      // Fetch cart with products directly from the server
+      try {
+        const response = await fetch(
+          `http://localhost:5000/carts/user/${user._id}`
+        );
+        const data = await response.json();
+        if (data && data.products) {
+          productsWithQuantity = data.products;
+          console.log(data)
+          console.log(data._id);
+          setCartID(data._id);
         }
+      } catch (error) {
+        console.error("Error fetching cart from server:", error);
+        return;
       }
     }
+
+    setCart(productsWithQuantity);
   };
 
   useEffect(() => {
+    if (typeof isAuthenticated === "undefined") {
+      return; // wait until the authentication state is known
+    }
     fetchProducts();
-  }, []);
+  }, [isAuthenticated]);
 
   return (
     <div className="flex items-start justify-center min-h-[calc(100vh-112px)] bg-gray-100 text-gray-600">
@@ -103,7 +166,11 @@ export default function Cart() {
                     value={product.ordered_quantity}
                   />
                 </p>
-                <button id={product._id} onClick={removeProduct} className="bg-red-500 text-white px-4 py-2 rounded-lg">
+                <button
+                  id={product._id}
+                  onClick={removeProduct}
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg"
+                >
                   Remove
                 </button>
               </div>
@@ -125,7 +192,11 @@ export default function Cart() {
             <p className="text-xl font-semibold">
               ${calculateTotal().toFixed(2)}
             </p>
-            <button disabled className="bg-red-500 text-white px-4 py-2 rounded-lg disabled:contrast-50 disabled:hover:cursor-not-allowed">
+            <button
+              disabled={cart.length === 0}
+              onClick={goToCheckout}
+              className="bg-red-500 text-white px-4 py-2 rounded-lg disabled:contrast-50 disabled:hover:cursor-not-allowed"
+            >
               Checkout
             </button>
           </div>
