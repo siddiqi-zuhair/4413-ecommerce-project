@@ -18,7 +18,6 @@ export default function Cart() {
   };
 
   const goToCheckout = () => {
-    console.log(cartID);
     if (!user) {
       router.push("/login");
       return;
@@ -119,8 +118,6 @@ export default function Cart() {
         const data = await response.json();
         if (data && data.products) {
           productsWithQuantity = data.products;
-          console.log(data)
-          console.log(data._id);
           setCartID(data._id);
         }
       } catch (error) {

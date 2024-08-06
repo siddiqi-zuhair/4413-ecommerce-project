@@ -84,7 +84,6 @@ export default function Product() {
             body: JSON.stringify(cart),
           });
         } else {
-          console.log(cart);
           // Cart exists, update it
           let itemExists = false;
 

@@ -7,7 +7,6 @@ const stripe = require("stripe")(
 
 router.get('/payment-methods/:userId', async (req, res) => {
     const { userId } = req.params;
-    console.log(userId);
     try {
       // Fetch the user from your database
       const user = await User.findById(userId);
