@@ -18,21 +18,34 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [address, setAddress] = useState(defaultAddress);
+  const [isNewAddress, setIsNewAddress] = useState(false);
+
+  const handleAddressChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = event.target.value;
+    if (selectedValue === "new") {
+      setIsNewAddress(true);
+      setAddress(""); // Clear address input for new entry
+    } else {
+      setIsNewAddress(false);
+      setAddress(defaultAddress); // Reset to default address
+    }
+  };
 
   useEffect(() => {
     async function fetchPaymentMethods() {
       try {
         const response = await fetch(`http://localhost:5000/stripe/payment-methods/${user_id}`);
         const data = await response.json();
-        console.log(data.paymentMethods);
-        setSavedPaymentMethods(data.paymentMethods);
+        setSavedPaymentMethods(data.paymentMethods || []);
       } catch (error) {
         console.error("Error fetching payment methods:", error);
       }
     }
-    if(!user_id) return;
-    fetchPaymentMethods();
-  }, [user_id, selectedPaymentMethod]);
+    if (user_id) {
+      fetchPaymentMethods();
+    }
+  }, [user_id]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -78,7 +91,7 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
               billing_details: {
                 email,
                 address: {
-                  line1: defaultAddress,
+                  line1: address,
                 },
               },
             },
@@ -88,7 +101,6 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
       }
 
       // On successful payment
-      // Create the order in the database
       const orderResponse = await fetch("http://localhost:5000/orders", {
         method: "POST",
         headers: {
@@ -97,10 +109,10 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
         body: JSON.stringify({
           products: cart,
           user_id,
-          address: defaultAddress,
+          address,
           purchase_date: new Date(),
           total: cart.reduce((acc: any, item: any) => acc + item.price * item.ordered_quantity, 0),
-          payment_intent: client_secret, // Save the Payment Intent ID
+          payment_intent: client_secret,
         }),
       });
 
@@ -112,7 +124,7 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
         },
       });
 
-      router.push("/success/"); // Redirect to success page after successful payment
+      router.push("/success/");
     } catch (error) {
       console.error("Error processing payment:", error);
       setError("An error occurred. Please try again.");
@@ -131,11 +143,11 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
         <label className="text-2xl font-semibold mb-2">Saved Payment Methods</label>
         <select className="p-2 rounded-2xl bg-gray-100 border-black border" value={selectedPaymentMethod} onChange={(e) => setSelectedPaymentMethod(e.target.value)}>
           <option value="">Use a new card</option>
-          {savedPaymentMethods && savedPaymentMethods ? savedPaymentMethods.map((method: any) => (
+          {savedPaymentMethods.map((method: any) => (
             <option key={method.id} value={method.id}>
               {method.card.brand} **** {method.card.last4}
             </option>
-          )) : null}
+          ))}
         </select>
       </div>
       {!selectedPaymentMethod && (
@@ -144,6 +156,26 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
           <CardElement options={{ hidePostalCode: true }} className="p-2 border border-gray-300 rounded" />
         </div>
       )}
+      <div className="flex flex-col w-full mb-4">
+        <label className="text-2xl font-semibold mb-2">Address</label>
+        <select
+          onChange={handleAddressChange}
+          className="p-2 border border-black bg-gray-100 rounded-2xl "
+          value={isNewAddress ? "new" : "default"}
+        >
+          <option value="default">{defaultAddress}</option>
+          <option value="new">Add New Address</option>
+        </select>
+        {isNewAddress && (
+          <input
+            type="text"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="Enter new address"
+            className="mt-2 p-2 border border-black rounded-2xl bg-white"
+          />
+        )}
+      </div>
       {error && <p className="text-red-500">{error}</p>}
       <button
         type="submit"
@@ -156,20 +188,17 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
   );
 };
 
+
 export default function Checkout() {
   const { isAuthenticated, user, loading } = useAuth();
   const [cart, setCart] = useState<any[]>([]);
   const [email, setEmail] = useState(user?.email || "");
-  const [defaultAddress, setDefaultAddress] = useState(
-    user?.default_address || ""
-  );
+  const [defaultAddress, setDefaultAddress] = useState(user?.default_address || "");
 
   const fetchCart = async () => {
     try {
       if (!user) return;
-      const response = await fetch(
-        `http://localhost:5000/carts/user/${user._id}`
-      );
+      const response = await fetch(`http://localhost:5000/carts/user/${user._id}`);
       const data = await response.json();
       setCart(data.products);
     } catch (error) {
@@ -178,11 +207,7 @@ export default function Checkout() {
   };
 
   const calculateTotalPrice = () => {
-    let total = 0;
-    for (let i = 0; i < cart.length; i++) {
-      total += cart[i].price * cart[i].ordered_quantity;
-    }
-    return total;
+    return cart.reduce((total, item) => total + item.price * item.ordered_quantity, 0);
   };
 
   useEffect(() => {
@@ -208,20 +233,12 @@ export default function Checkout() {
               >
                 <div className="flex flex-col flex-grow">
                   <h3 className="text-xl font-semibold">{product.name}</h3>
-                  <p className="text-gray-500 text-lg">
-                    Price: ${product.price}
-                  </p>
-                  <p className="text-gray-500 text-lg">
-                    Quantity: {product.ordered_quantity}
-                  </p>
+                  <p className="text-gray-500 text-lg">Price: ${product.price}</p>
+                  <p className="text-gray-500 text-lg">Quantity: {product.ordered_quantity}</p>
                 </div>
                 <div className="ml-4">
                   <img
-                    src={
-                      "https://images.igdb.com/igdb/image/upload/t_cover_big/" +
-                      product.cover +
-                      ".jpg"
-                    }
+                    src={`https://images.igdb.com/igdb/image/upload/t_cover_big/${product.cover}.jpg`}
                     alt={product.name}
                     className="w-32 h-auto object-cover"
                   />
@@ -231,9 +248,7 @@ export default function Checkout() {
           </div>
         </div>
         <div className="w-1/4 p-5 pt-20 h-1/2 flex flex-col">
-          <p className="text-2xl font-bold pl-3">
-            Total Price: ${calculateTotalPrice()}
-          </p>
+          <p className="text-2xl font-bold pl-3">Total Price: ${calculateTotalPrice()}</p>
           <Elements stripe={stripePromise}>
             <CheckoutForm
               cart={cart}

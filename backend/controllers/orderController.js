@@ -32,7 +32,16 @@ exports.createOrder = async (req, res) => {
   });
   try {
     const newOrder = await order.save();
-    res.status(201).json(newOrder);
+    //delete cart after order is created
+    await Cart.deleteOne({ user_id });
+
+    // reduce product quantity in database
+    products.forEach(async (product) => {
+      const productInDB = await Product.findById(product.product_id);
+      productInDB.quantity -= product.quantity;
+      await productInDB.save();
+    });
+      res.status(201).json(newOrder);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
