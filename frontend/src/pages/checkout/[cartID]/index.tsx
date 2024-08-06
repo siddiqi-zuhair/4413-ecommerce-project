@@ -9,7 +9,11 @@ import {
 import router from "next/router";
 import { useAuth } from "@/context/authContext";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ? process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY : "");
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+    ? process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+    : ""
+);
 
 const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
   const stripe = useStripe();
@@ -35,7 +39,9 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
   useEffect(() => {
     async function fetchPaymentMethods() {
       try {
-        const response = await fetch(`http://localhost:5000/stripe/payment-methods/${user_id}`);
+        const response = await fetch(
+          `http://localhost:5000/stripe/payment-methods/${user_id}`
+        );
         const data = await response.json();
         setSavedPaymentMethods(data.paymentMethods || []);
       } catch (error) {
@@ -111,19 +117,13 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
           user_id,
           address,
           purchase_date: new Date(),
-          total: cart.reduce((acc: any, item: any) => acc + item.price * item.ordered_quantity, 0),
+          total: cart.reduce(
+            (acc: any, item: any) => acc + item.price * item.ordered_quantity,
+            0
+          ),
           payment_intent: client_secret,
         }),
       });
-
-      // Remove cart from database
-      await fetch(`http://localhost:5000/carts/${user_id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
       router.push("/success/");
     } catch (error) {
       console.error("Error processing payment:", error);
@@ -134,14 +134,28 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col justify-center w-full pt-5 pl-5">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col justify-center w-full pt-5 pl-5"
+    >
       <div className="flex flex-col w-full mb-4">
         <label className="text-2xl font-semibold mb-2">Email</label>
-        <input type="email" value={email} readOnly className="p-2 border border-gray-300 rounded" />
+        <input
+          type="email"
+          value={email}
+          readOnly
+          className="p-2 border border-gray-300 rounded"
+        />
       </div>
       <div className="flex flex-col w-full mb-4">
-        <label className="text-2xl font-semibold mb-2">Saved Payment Methods</label>
-        <select className="p-2 rounded-2xl bg-gray-100 border-black border" value={selectedPaymentMethod} onChange={(e) => setSelectedPaymentMethod(e.target.value)}>
+        <label className="text-2xl font-semibold mb-2">
+          Saved Payment Methods
+        </label>
+        <select
+          className="p-2 rounded-2xl bg-gray-100 border-black border"
+          value={selectedPaymentMethod}
+          onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+        >
           <option value="">Use a new card</option>
           {savedPaymentMethods.map((method: any) => (
             <option key={method.id} value={method.id}>
@@ -153,7 +167,10 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
       {!selectedPaymentMethod && (
         <div className="flex flex-col w-full mb-4">
           <label className="text-2xl font-semibold mb-2">Card Details</label>
-          <CardElement options={{ hidePostalCode: true }} className="p-2 border border-gray-300 rounded" />
+          <CardElement
+            options={{ hidePostalCode: true }}
+            className="p-2 border border-gray-300 rounded"
+          />
         </div>
       )}
       <div className="flex flex-col w-full mb-4">
@@ -188,17 +205,20 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
   );
 };
 
-
 export default function Checkout() {
   const { isAuthenticated, user, loading } = useAuth();
   const [cart, setCart] = useState<any[]>([]);
   const [email, setEmail] = useState(user?.email || "");
-  const [defaultAddress, setDefaultAddress] = useState(user?.default_address || "");
+  const [defaultAddress, setDefaultAddress] = useState(
+    user?.default_address || ""
+  );
 
   const fetchCart = async () => {
     try {
       if (!user) return;
-      const response = await fetch(`http://localhost:5000/carts/user/${user._id}`);
+      const response = await fetch(
+        `http://localhost:5000/carts/user/${user._id}`
+      );
       const data = await response.json();
       setCart(data.products);
     } catch (error) {
@@ -207,7 +227,13 @@ export default function Checkout() {
   };
 
   const calculateTotalPrice = () => {
-    return cart.reduce((total, item) => total + item.price * item.ordered_quantity, 0);
+    // Round to 2 decimal places
+    return cart
+      .reduce(
+        (acc: any, item: any) => acc + item.price * item.ordered_quantity,
+        0
+      )
+      .toFixed(2);
   };
 
   useEffect(() => {
@@ -233,8 +259,12 @@ export default function Checkout() {
               >
                 <div className="flex flex-col flex-grow">
                   <h3 className="text-xl font-semibold">{product.name}</h3>
-                  <p className="text-gray-500 text-lg">Price: ${product.price}</p>
-                  <p className="text-gray-500 text-lg">Quantity: {product.ordered_quantity}</p>
+                  <p className="text-gray-500 text-lg">
+                    Price: ${product.price}
+                  </p>
+                  <p className="text-gray-500 text-lg">
+                    Quantity: {product.ordered_quantity}
+                  </p>
                 </div>
                 <div className="ml-4">
                   <img
@@ -248,7 +278,9 @@ export default function Checkout() {
           </div>
         </div>
         <div className="w-1/4 p-5 pt-20 h-1/2 flex flex-col">
-          <p className="text-2xl font-bold pl-3">Total Price: ${calculateTotalPrice()}</p>
+          <p className="text-2xl font-bold pl-3">
+            Total Price: ${calculateTotalPrice()}
+          </p>
           <Elements stripe={stripePromise}>
             <CheckoutForm
               cart={cart}
