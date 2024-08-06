@@ -104,10 +104,8 @@ router.get('/payment-methods/:userId', async (req, res) => {
 
 function calculateOrderAmount(cartItems) {
   // Calculate the total amount in cents
-  return cartItems.reduce(
-    (total, item) => total + item.price * item.ordered_quantity * 100,
-    0
-  );
+  //round to 0 decimal places
+    return Math.round(cartItems.reduce((total, product) => total + product.price * product.quantity, 0) * 100);
 }
 
 module.exports = router;
