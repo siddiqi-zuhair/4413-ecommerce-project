@@ -50,18 +50,19 @@ export default function Header() {
   };
 
   const updateQuantity = async () => {
-    setQuantity(await getQuantity());
+    const newQuantity = await getQuantity();
+    setQuantity(newQuantity); // Update the state with the new quantity
   };
 
   useEffect(() => {
     if (typeof isAuthenticated === "undefined") {
-      return; // wait until the authentication state is known
+      return; // Wait until the authentication state is known
     }
 
     updateQuantity();
 
-    const handleCartChange = () => {
-      updateQuantity();
+    const handleCartChange = async () => {
+      await updateQuantity();
     };
 
     window.addEventListener("cartChange", handleCartChange);
@@ -69,7 +70,7 @@ export default function Header() {
     return () => {
       window.removeEventListener("cartChange", handleCartChange);
     };
-  }, [isAuthenticated]); // Re-run when the authentication state changes
+  }, [isAuthenticated]);
 
   return (
     <header className="bg-gray-600 flex items-center justify-between p-4">

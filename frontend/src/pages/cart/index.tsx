@@ -26,45 +26,32 @@ export default function Cart() {
     }
   };
 
-  const removeProduct = (e: any) => {
+  const removeProduct = async (e: any) => {
     const updatedCart = cart.filter((product) => product._id !== e.target.id);
     setCart(updatedCart);
-    if (updatedCart.length === 0 && !user) {
-      localStorage.removeItem("cart");
-      window.dispatchEvent(cartChange);
-      return;
-    } else if (updatedCart.length === 0 && user) {
-      fetch(`http://localhost:5000/carts/${user._id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      window.dispatchEvent(cartChange);
-      return;
-    }
-    const cartToStore = updatedCart.map((item) => ({
-      id: item._id,
-      ordered_quantity: item.ordered_quantity,
-    }));
+
+    // Optimistically update localStorage or dispatch changes to the backend
     if (!user) {
-      localStorage.setItem("cart", JSON.stringify(cartToStore));
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
     } else {
-      fetch(`http://localhost:5000/carts/${user._id}`, {
+      await fetch(`http://localhost:5000/carts/${user._id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ products: cartToStore }),
+        body: JSON.stringify({ products: updatedCart }),
       });
     }
+
+    // Dispatch cartChange event
     window.dispatchEvent(cartChange);
   };
-  const changeQuantity = (e: any) => {
+
+  const changeQuantity = async (e: any) => {
     const updatedCart = cart.map((product) => {
       if (product._id === e.target.id) {
         if (Number(e.target.value) > product.quantity) {
-          alert("We only have ${product.quantity} in stock.");
+          alert(`We only have ${product.quantity} in stock.`);
           return product;
         } else if (Number(e.target.value) < 1) {
           return product;
@@ -77,22 +64,22 @@ export default function Cart() {
       return product;
     });
     setCart(updatedCart);
-    const cartToStore = updatedCart.map((item) => ({
-      id: item._id,
-      ordered_quantity: item.ordered_quantity,
-    }));
+
+    // Optimistically update localStorage or dispatch changes to the backend
     if (!user) {
-      localStorage.setItem("cart", JSON.stringify(cartToStore));
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
     } else {
-      fetch(`http://localhost:5000/carts/${user._id}`, {
+      await fetch(`http://localhost:5000/carts/${user._id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ products: cartToStore }),
+        body: JSON.stringify({ products: updatedCart }),
       });
     }
-    window.dispatchEvent(new Event("cartChange"));
+
+    // Dispatch cartChange event
+    window.dispatchEvent(cartChange);
   };
 
   const fetchProducts = async () => {
