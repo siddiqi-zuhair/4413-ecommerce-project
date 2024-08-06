@@ -10,6 +10,7 @@ type User = {
   last_name: string;
   phone_number: string;
   is_admin: boolean;
+  stripeCustomerId: string;
 };
 
 export default function UserManagement() {

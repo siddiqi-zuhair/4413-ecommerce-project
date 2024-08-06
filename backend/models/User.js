@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   first_name: { type: String, required: true },
   last_name: { type: String, required: true },
   phone_number: { type: String, required: true },
+  stripeCustomerId: { type: String },
   is_admin: { type: Boolean, default: false } 
 });
 

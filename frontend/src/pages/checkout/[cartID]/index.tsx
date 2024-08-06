@@ -1,4 +1,3 @@
-import { useAuth } from "@/context/authContext";
 import { useEffect, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
@@ -8,17 +7,32 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 import router from "next/router";
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ? process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY : ""
-); // Replace with your Stripe publishable key
+import { useAuth } from "@/context/authContext";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ? process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY : "");
 
 const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
   const stripe = useStripe();
   const elements = useElements();
+  const [savedPaymentMethods, setSavedPaymentMethods] = useState<any[]>([]);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [address, setAddress] = useState(defaultAddress);
-  const [isNewAddress, setIsNewAddress] = useState(false);
+
+  useEffect(() => {
+    async function fetchPaymentMethods() {
+      try {
+        const response = await fetch(`http://localhost:5000/stripe/payment-methods/${user_id}`);
+        const data = await response.json();
+        console.log(data.paymentMethods);
+        setSavedPaymentMethods(data.paymentMethods);
+      } catch (error) {
+        console.error("Error fetching payment methods:", error);
+      }
+    }
+    if(!user_id) return;
+    fetchPaymentMethods();
+  }, [user_id, selectedPaymentMethod]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -35,46 +49,70 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ cartItems: cart }),
+          body: JSON.stringify({ cartItems: cart, email: email }),
         }
       );
       const { client_secret } = await response.json();
-      const card = elements.getElement(CardElement);
-      if (!card) return;
 
-      const { paymentIntent, error } = await stripe.confirmCardPayment(client_secret, {
-        payment_method: {
-          card: card,
-          billing_details: {
-            email,
-            address: {
-              line1: address,
+      let paymentMethod;
+
+      if (selectedPaymentMethod) {
+        // Use saved payment method
+        const { error: paymentError } = await stripe.confirmCardPayment(
+          client_secret,
+          {
+            payment_method: selectedPaymentMethod,
+          }
+        );
+        if (paymentError) throw paymentError;
+      } else {
+        // Use new card with CardElement
+        const cardElement = elements.getElement(CardElement);
+        if (!cardElement) return;
+
+        const { error: confirmError } = await stripe.confirmCardPayment(
+          client_secret,
+          {
+            payment_method: {
+              card: cardElement,
+              billing_details: {
+                email,
+                address: {
+                  line1: defaultAddress,
+                },
+              },
             },
-          },
+          }
+        );
+        if (confirmError) throw confirmError;
+      }
+
+      // On successful payment
+      // Create the order in the database
+      const orderResponse = await fetch("http://localhost:5000/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          products: cart,
+          user_id,
+          address: defaultAddress,
+          purchase_date: new Date(),
+          total: cart.reduce((acc: any, item: any) => acc + item.price * item.ordered_quantity, 0),
+          payment_intent: client_secret, // Save the Payment Intent ID
+        }),
+      });
+
+      // Remove cart from database
+      await fetch(`http://localhost:5000/carts/${user_id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
         },
       });
-      console.log(paymentIntent);
-      if (error && error.message) {
-        setError(error.message);
-      } else if(paymentIntent && paymentIntent.status === "succeeded") {
-        //Create order in database
-        const orderResponse = await fetch("http://localhost:5000/orders", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ products: cart, user_id: user_id, address: address, purchase_date: new Date(), total: cart.reduce((acc: any, item: any) => acc + item.price * item.ordered_quantity, 0), payment_intent: paymentIntent.id }),
-        });
-        //Remove cart from database
-        await fetch(`http://localhost:5000/carts/${user_id}`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
 
-        router.push("/success/"); // Redirect to success page after successful payment
-      }
+      router.push("/success/"); // Redirect to success page after successful payment
     } catch (error) {
       console.error("Error processing payment:", error);
       setError("An error occurred. Please try again.");
@@ -83,58 +121,29 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
     }
   };
 
-  const handleAddressChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = event.target.value;
-    if (selectedValue === "new") {
-      setIsNewAddress(true);
-      setAddress(""); // Clear address input for new entry
-    } else {
-      setIsNewAddress(false);
-      setAddress(defaultAddress); // Reset to default address
-    }
-  };
-
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col justify-center  w-full pt-5 pl-5"
-    >
+    <form onSubmit={handleSubmit} className="flex flex-col justify-center w-full pt-5 pl-5">
       <div className="flex flex-col w-full mb-4">
         <label className="text-2xl font-semibold mb-2">Email</label>
-        <input
-          type="email"
-          value={email}
-          readOnly
-          className="p-2 border border-gray-300 rounded"
-        />
+        <input type="email" value={email} readOnly className="p-2 border border-gray-300 rounded" />
       </div>
       <div className="flex flex-col w-full mb-4">
-        <label className="text-2xl font-semibold mb-2">Address</label>
-        <select
-          onChange={handleAddressChange}
-          className="p-2 border border-gray-300 rounded"
-          value={isNewAddress ? "new" : "default"}
-        >
-          <option value="default">{defaultAddress}</option>
-          <option value="new">Add New Address</option>
+        <label className="text-2xl font-semibold mb-2">Saved Payment Methods</label>
+        <select className="p-2 rounded-2xl bg-gray-100 border-black border" value={selectedPaymentMethod} onChange={(e) => setSelectedPaymentMethod(e.target.value)}>
+          <option value="">Use a new card</option>
+          {savedPaymentMethods && savedPaymentMethods ? savedPaymentMethods.map((method: any) => (
+            <option key={method.id} value={method.id}>
+              {method.card.brand} **** {method.card.last4}
+            </option>
+          )) : null}
         </select>
-        {isNewAddress && (
-          <input
-            type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Enter new address"
-            className="mt-2 p-2 border border-gray-300 rounded"
-          />
-        )}
       </div>
-      <div className="flex flex-col w-full mb-4">
-        <label className="text-2xl font-semibold mb-2">Card Details</label>
-        <CardElement
-          options={{ hidePostalCode: true }}
-          className="p-2 border border-gray-300 rounded"
-        />
-      </div>
+      {!selectedPaymentMethod && (
+        <div className="flex flex-col w-full mb-4">
+          <label className="text-2xl font-semibold mb-2">Card Details</label>
+          <CardElement options={{ hidePostalCode: true }} className="p-2 border border-gray-300 rounded" />
+        </div>
+      )}
       {error && <p className="text-red-500">{error}</p>}
       <button
         type="submit"
