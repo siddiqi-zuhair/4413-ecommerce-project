@@ -124,7 +124,7 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
           payment_intent: client_secret,
         }),
       });
-      router.push("/success/");
+      router.push("/success/" + (await orderResponse.json())._id);
     } catch (error) {
       console.error("Error processing payment:", error);
       setError("An error occurred. Please try again.");

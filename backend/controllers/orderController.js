@@ -21,6 +21,15 @@ exports.getOrdersByUserId = async (req, res) => {
   }
 };
 
+exports.getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 exports.createOrder = async (req, res) => {
   const { user_id, products, total, purchase_date, address, payment_intent } =
     req.body;
