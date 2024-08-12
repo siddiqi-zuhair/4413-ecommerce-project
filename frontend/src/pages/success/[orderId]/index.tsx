@@ -1,18 +1,23 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/authContext";
+
 export default function OrderSuccess() {
   const router = useRouter();
   const { orderId } = router.query;
   const [order, setOrder] = useState<any | null>(null);
+  const { user, isAuthenticated, loading } = useAuth();
 
   useEffect(() => {
-    if (orderId) {
-      console.log("Order ID:", orderId);
-      fetchOrder();
-    } else {
-      return;
+    if (!loading) {
+      if (!isAuthenticated) {
+        router.push("/");
+      } else if (orderId && user) {
+        console.log("Order ID:", orderId);
+        fetchOrder();
+      }
     }
-  }, [orderId]);
+  }, [orderId, user, isAuthenticated, loading]);
 
   const fetchOrder = async () => {
     try {
@@ -20,13 +25,17 @@ export default function OrderSuccess() {
       const data = await response.json();
       console.log(data);
       setOrder(data);
+      if (user?._id !== data.user_id) {
+        console.error("You are not authorized to view this order.");
+        router.push("/");
+      }
     } catch (error) {
       console.error("Error fetching order:", error);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-start p-10 h-screen bg-gray-100 text-gray-700">
+    <div className="flex flex-col items-center justify-start p-10 min-h-[calc(100vh-112px)] bg-gray-100 text-gray-700">
       <h1 className="text-5xl font-bold mb-4">Thanks for your order!</h1>
       <p className="text-4xl">Order summary:</p>
       {order && (
@@ -42,6 +51,7 @@ export default function OrderSuccess() {
                 <p className="text-gray-500 text-xl">
                   Quantity: {product.ordered_quantity}
                 </p>
+                <p>Item total: ${product.price * product.ordered_quantity}</p>
               </div>
               <div className="ml-4">
                 <img
@@ -52,8 +62,8 @@ export default function OrderSuccess() {
               </div>
             </div>
           ))}
-          <p className="text-2xl">Shipping Address: {order.address}</p>
-          <p className="text-2xl">Total: ${order.total}</p>
+          <p className="text-2xl pt-2">Shipping Address: {order.address}</p>
+          <p className="text-2xl pt-2 ">Total: ${order.total}</p>
         </div>
       )}
     </div>
