@@ -6,7 +6,7 @@ import Carousel from "@/components/ImageVideoCarousel";
 import { useAuth } from "@/context/authContext";
 interface photoVideo {
   type: "cover" | "photo" | "video";
-  id: string;
+  url: string;
 }
 
 export default function Product() {
@@ -138,19 +138,19 @@ export default function Product() {
     setProduct(data as Item);
     let tempVidPhoto: photoVideo[] = [];
     if (data.cover) {
-      tempVidPhoto = [...tempVidPhoto, { type: "cover", id: data.cover }];
+      tempVidPhoto = [...tempVidPhoto, { type: "cover", url: data.cover }];
     }
     if (data.videos) {
       tempVidPhoto = [
         ...tempVidPhoto,
-        ...data.videos.map((video: string) => ({ type: "video", id: video })),
+        ...data.videos.map((video: string) => ({ type: "video", url: video })),
       ];
     }
 
     if (data.photos) {
       tempVidPhoto = [
         ...tempVidPhoto,
-        ...data.photos.map((photo: string) => ({ type: "photo", id: photo })),
+        ...data.photos.map((photo: string) => ({ type: "photo", url: photo })),
       ];
     }
     setVideosAndPhotos(tempVidPhoto);

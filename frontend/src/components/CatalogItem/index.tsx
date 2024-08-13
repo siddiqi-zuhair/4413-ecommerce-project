@@ -11,9 +11,7 @@ export default function CatalogItem({ item }: { item: Item }) {
           <img
             className="rounded-xl w-full p-2"
             src={
-              "https://images.igdb.com/igdb/image/upload/t_cover_big/" +
-              item.cover +
-              ".jpg"
+              item.cover
             }
             alt={item.name}
           />

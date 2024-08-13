@@ -21,6 +21,7 @@ exports.getMultipleProductsById = async (req, res) => {
     }
 
     const products = await Product.find({ _id: { $in: ids } });
+    console.log(products);
     res.json(products);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -72,8 +73,13 @@ exports.createProducts = async (req, res) => {
     data?.map((game) => {
       const platforms = game.platforms?.map((platform) => platform.name) || [];
       const photos =
-        game.screenshots?.map((screenshot) => screenshot.image_id) || [];
-      const videos = game.videos?.map((video) => video.video_id) || [];
+        game.screenshots?.map(
+          (screenshot) =>
+            `https://images.igdb.com/igdb/image/upload/t_screenshot_big/${screenshot.image_id}.jpg`
+        ) || [];
+      const videos =
+        game.videos?.map((video) => `youtube.com/embed/${video.video_id}`) ||
+        [];
       const quantity = Math.floor(Math.random() * 50) + 10;
       const prices = [19.99, 29.99, 49.99, 59.99, 79.99, 89.99, 99.99];
       const price = prices[Math.floor(Math.random() * prices.length)];
@@ -83,7 +89,7 @@ exports.createProducts = async (req, res) => {
         description: game.summary,
         platform: platforms,
         quantity: quantity,
-        cover: game.cover.image_id,
+        cover: `https://images.igdb.com/igdb/image/upload/t_cover_big/${game.cover.image_id}.jpg`,
         price: price,
         photos: photos,
         videos: videos,

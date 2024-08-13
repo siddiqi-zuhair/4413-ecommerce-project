@@ -1,13 +1,19 @@
+import { get } from "http";
 import { useState, useEffect, useRef } from "react";
 
 interface CarouselProps {
-  items: Array<{ type: string; id: string }>;
+  items: Array<{ type: string; url: string }>;
 }
-
 const Carousel = ({ items }: CarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
 
+  const getThumbnail = (url: string) => {
+    let videoId = url.split("v=")[1];
+    if (!videoId) videoId = url.split("embed/")[1];
+    console.log(videoId);
+    return `https://img.youtube.com/vi/${videoId}/0.jpg`;
+  };
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const element = event.currentTarget;
     const newIndex = Math.round(element.scrollLeft / element.clientWidth);
@@ -39,20 +45,20 @@ const Carousel = ({ items }: CarouselProps) => {
             {item.type === "photo" ? (
               <img
                 className="rounded-xl object-cover "
-                src={`https://images.igdb.com/igdb/image/upload/t_screenshot_big/${item.id}.jpg`}
+                src={item.url}
                 alt="Carousel Item"
               />
             ) : item.type === "cover" ? (
               <img
                 className="rounded-2xl object-cover scale-125"
-                src={`https://images.igdb.com/igdb/image/upload/t_cover_big/${item.id}.jpg`}
+                src={item.url}
                 alt="Carousel Item"
               />
             ) : (
               <iframe
                 width="560"
                 height="315"
-                src={`https://www.youtube.com/embed/${item.id}`}
+                src={item.url}
                 title="Carousel Item"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -75,21 +81,25 @@ const Carousel = ({ items }: CarouselProps) => {
             {item.type === "photo" ? (
               <img
                 className="w-full h-full object-cover rounded"
-                src={`https://images.igdb.com/igdb/image/upload/t_screenshot_med/${item.id}.jpg`}
+                src={item.url}
                 alt="Preview Item"
               />
             ) : item.type === "cover" ? (
               <img
                 className="w-full h-full object-cover rounded"
-                src={`https://images.igdb.com/igdb/image/upload/t_cover_big/${item.id}.jpg`}
+                src={item.url}
                 alt="Preview Item"
               />
             ) : (
               <div className="w-full h-full flex items-center relative justify-center rounded">
-                <img className="w-[40px] h-[40px] z-10 absolute" src="/images/play-button.svg" alt="Youtube Logo" />
+                <img
+                  className="w-[40px] h-[40px] z-10 absolute"
+                  src="/images/play-button.svg"
+                  alt="Youtube Logo"
+                />
                 <img
                   className="w-full h-full object-cover rounded"
-                  src={`http://img.youtube.com/vi/${item.id}/sddefault.jpg`}
+                  src={getThumbnail(item.url)}
                 ></img>
               </div>
             )}

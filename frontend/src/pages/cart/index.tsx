@@ -91,10 +91,27 @@ export default function Cart() {
       const localStorageCart = localStorage.getItem("cart");
       if (localStorageCart) {
         const cartItems = JSON.parse(localStorageCart);
-        productsWithQuantity = cartItems.map((item: any) => ({
-          ...item,
-          ordered_quantity: item.ordered_quantity || 1, // Assuming ordered_quantity exists in localStorage
-        }));
+        const ids = cartItems.map((item: any) => item.id);
+        try {
+          const response = await fetch(
+            `http://localhost:5000/products/multiple?ids=${ids.join(",")}`
+          );
+          const data = await response.json();
+          console.log(data);
+          productsWithQuantity = data.map((product: any) => {
+            const cartItem = cartItems.find(
+              (item: any) => item.id === product._id
+            );
+            return {
+              ...product,
+              ordered_quantity: cartItem.ordered_quantity || 1,
+            };
+          });
+        } catch (error) {
+          console.error("Error fetching products from server:", error);
+          return;
+        }
+        console.log(productsWithQuantity);
       }
     } else {
       // Fetch cart with products directly from the server
