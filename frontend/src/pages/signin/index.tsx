@@ -22,10 +22,9 @@ export default function SignIn() {
       if (response.ok) {
         const data = await response.json();
         login(data.token);
+        // Add cart to user's account if there are items in localStorage
+        
         router.push("/dashboard");
-        localStorage.removeItem("cart");
-        const event = new Event("cartChange");
-        window.dispatchEvent(event);
       } else {
         const errorText = await response.text();
         console.error("Error signing in:", errorText);

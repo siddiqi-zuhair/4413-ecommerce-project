@@ -106,9 +106,9 @@ export default function Header() {
           </Link>
         )}
         <Link href="/cart" passHref>
-          <div className="py-2 relative">
-            <img src="/images/bag.svg" alt="cart" className="w-10" />
-            <span className="bg-red-500 text-white rounded-full text-xl w-8 h-8 text-center z-10 absolute top-12 left-5">
+          <div className="p-4 relative">
+            <img src="/images/bag.svg" alt="cart" className="w-12" />
+            <span className="bg-red-500 text-white rounded-full text-xl w-8 h-8 text-center z-10 absolute top-16 left-12">
               {quantity}
             </span>
           </div>

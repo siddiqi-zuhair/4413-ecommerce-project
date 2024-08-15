@@ -19,10 +19,39 @@ exports.getCartById = async (req, res) => {
     if (!cart) {
       return res.status(404).json({ message: "Cannot find cart" });
     }
-    // Filter out 
+    // Filter out
     res.json(cart);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+exports.manageCart = async (req, res) => {
+  console.log("we are managing the cart");
+  try {
+    const cart = await Cart.findOne({ user_id: req.params.id });
+    if (!cart) {
+      const cart = new Cart({
+        user_id: req.params.id,
+        products: req.params.products,
+      });
+      const newCart = await cart.save();
+      res.status(201).json(newCart);
+    } else {
+      const { user_id, products } = req.body;
+      console.log(products);
+      console.log(cart.products);
+      let newCart = cart.products;
+      if (products != null) newCart = newCart.concat(products);
+      const updatedCart = await Cart.findOneAndUpdate(
+        { user_id: req.params.id },
+        { products: newCart },
+        { new: true }
+      );
+      res.json(updatedCart);
+    }
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 };
 
@@ -35,17 +64,21 @@ exports.getCartWithProducts = async (req, res) => {
     }
 
     // Extract product IDs from the cart
-    const productIds = cart.products.map(product => product.id); // Assuming products array contains objects with `id`
+    const productIds = cart.products.map((product) => product.id); // Assuming products array contains objects with `id`
 
     // Filter out invalid MongoDB ObjectIDs
-    const validProductIds = productIds.filter(id => mongoose.Types.ObjectId.isValid(id));
+    const validProductIds = productIds.filter((id) =>
+      mongoose.Types.ObjectId.isValid(id)
+    );
 
     // Fetch products from the database using the valid product IDs
     const products = await Product.find({ _id: { $in: validProductIds } });
 
     // Combine cart products with the product details fetched
-    const productsWithDetails = products.map(product => {
-      const cartItem = cart.products.find(item => item.id === product._id.toString());
+    const productsWithDetails = products.map((product) => {
+      const cartItem = cart.products.find(
+        (item) => item.id === product._id.toString()
+      );
       return {
         ...product._doc, // Spread the product details
         ordered_quantity: cartItem ? cartItem.ordered_quantity : 1, // Merge with cart quantity
@@ -53,15 +86,16 @@ exports.getCartWithProducts = async (req, res) => {
     });
 
     // Respond with the cart id, user id, and combined product details and quantities
-    res.json({ 
+    res.json({
       _id: cart._id,
       user_id: cart.user_id,
-      products: productsWithDetails 
+      products: productsWithDetails,
     });
-
   } catch (err) {
     console.error("Error fetching cart with products:", err);
-    res.status(500).json({ message: "An error occurred while fetching the cart." });
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching the cart." });
   }
 };
 // Create a cart

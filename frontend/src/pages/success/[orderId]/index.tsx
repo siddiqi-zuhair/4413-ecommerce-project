@@ -13,7 +13,6 @@ export default function OrderSuccess() {
       if (!isAuthenticated) {
         router.push("/");
       } else if (orderId && user) {
-        console.log("Order ID:", orderId);
         fetchOrder();
       }
     }
@@ -23,7 +22,6 @@ export default function OrderSuccess() {
     try {
       const response = await fetch(`http://localhost:5000/orders/${orderId}`);
       const data = await response.json();
-      console.log(data);
       setOrder(data);
       if (user?._id !== data.user_id) {
         console.error("You are not authorized to view this order.");
@@ -55,7 +53,7 @@ export default function OrderSuccess() {
               </div>
               <div className="ml-4">
                 <img
-                  src={`https://images.igdb.com/igdb/image/upload/t_cover_big/${product.cover}.jpg`}
+                  src={product.cover}
                   alt={product.name}
                   className="w-32 h-auto object-cover"
                 />

@@ -62,7 +62,7 @@ export default function Catalog() {
   return filteredItems.length === 0 ? (
     <Loading />
   ) : (
-    <div className="bg-stone-50 flex flex-col items-start justify-start w-full h-full text-gray-600 ">
+    <div className="bg-stone-50 flex flex-col items-start justify-start w-full h-full min-h-[calc(100vh-112px)] text-gray-600 ">
       <h1 className="text-8xl font-black tracking-wider p-10">Catalog</h1>
       <div className="flex flex-row justify-between w-full">
         <div className="flex items-center justify-center text-3xl font-extrabold text-gray-500 px-10 gap-5">

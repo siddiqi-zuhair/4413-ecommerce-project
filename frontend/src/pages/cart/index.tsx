@@ -19,7 +19,7 @@ export default function Cart() {
 
   const goToCheckout = () => {
     if (!user) {
-      router.push("/login");
+      router.push("/signin?redirect=cart");
       return;
     } else {
       router.push(`/checkout/${cartID}`);
@@ -97,7 +97,6 @@ export default function Cart() {
             `http://localhost:5000/products/multiple?ids=${ids.join(",")}`
           );
           const data = await response.json();
-          console.log(data);
           productsWithQuantity = data.map((product: any) => {
             const cartItem = cartItems.find(
               (item: any) => item.id === product._id
@@ -111,7 +110,6 @@ export default function Cart() {
           console.error("Error fetching products from server:", error);
           return;
         }
-        console.log(productsWithQuantity);
       }
     } else {
       // Fetch cart with products directly from the server
@@ -177,11 +175,7 @@ export default function Cart() {
               </div>
               <div>
                 <img
-                  src={
-                    "https://images.igdb.com/igdb/image/upload/t_cover_big/" +
-                    product.cover +
-                    ".jpg"
-                  }
+                  src={product.cover}
                   alt={product.name}
                   className="w-32 h-auto object-cover"
                 />
@@ -198,7 +192,7 @@ export default function Cart() {
               onClick={goToCheckout}
               className="bg-red-500 text-white px-4 py-2 rounded-lg disabled:contrast-50 disabled:hover:cursor-not-allowed"
             >
-              Checkout
+              {user ? "Checkout" : "Sign in to checkout"}
             </button>
           </div>
         </div>

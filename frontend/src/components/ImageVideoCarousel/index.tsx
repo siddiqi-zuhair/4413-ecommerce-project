@@ -11,7 +11,6 @@ const Carousel = ({ items }: CarouselProps) => {
   const getThumbnail = (url: string) => {
     let videoId = url.split("v=")[1];
     if (!videoId) videoId = url.split("embed/")[1];
-    console.log(videoId);
     return `https://img.youtube.com/vi/${videoId}/0.jpg`;
   };
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
