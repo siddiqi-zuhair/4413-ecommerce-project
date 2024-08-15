@@ -18,6 +18,16 @@ exports.signUp = async (req, res) => {
   try {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+    User.findOne({ username }, (err, user) => {
+      if (user) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+    });
+    User.findOne({ email }, (err, user) => {
+      if (user) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+    });
 
     const user = new User({
       username,
@@ -73,6 +83,33 @@ exports.getMe = async (req, res) => {
   }
 };
 
+exports.checkEmail = async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.params.email });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "Email not found", exists: false });
+    }
+    res.json({ exists: true });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+exports.checkUsername = async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "Username not found", exists: false });
+    }
+    res.json({ exists: true });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 // Update User Controller
 exports.updateUser = async (req, res) => {
   try {

@@ -38,9 +38,7 @@ exports.manageCart = async (req, res) => {
       const newCart = await cart.save();
       res.status(201).json(newCart);
     } else {
-      const { user_id, products } = req.body;
-      console.log(products);
-      console.log(cart.products);
+      const { products } = req.body;
       let newCart = cart.products;
       if (products != null) newCart = newCart.concat(products);
       const updatedCart = await Cart.findOneAndUpdate(
