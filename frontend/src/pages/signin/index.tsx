@@ -7,6 +7,7 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const { login } = useAuth();
   const router = useRouter();
+  const redirect = router.query.redirect;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -23,8 +24,11 @@ export default function SignIn() {
         const data = await response.json();
         login(data.token);
         // Add cart to user's account if there are items in localStorage
-        
-        router.push("/dashboard");
+        if (redirect !== undefined) {
+          router.push(`/${redirect}`);
+        } else {
+          router.push("/dashboard");
+        }
       } else {
         const errorText = await response.text();
         console.error("Error signing in:", errorText);
