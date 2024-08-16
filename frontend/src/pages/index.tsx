@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import ItemCarousel from "../components/ItemCarousel";
+import Catalog from "./catalog";
 
 export default function Home() {
   const [popularItems, setPopularItems] = useState<any[]>([]);
@@ -17,6 +18,7 @@ export default function Home() {
   return (
     <div className="bg-gray-200 min-h-[calc(100vh-144px)] text-3xl font-bold text-gray-600 relative">
       {popularItems.length > 0 && <ItemCarousel items={popularItems} />}
+      <Catalog />
     </div>
   );
 }
