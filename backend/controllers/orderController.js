@@ -22,6 +22,7 @@ exports.getOrdersByUserId = async (req, res) => {
 };
 
 exports.getOrderById = async (req, res) => {
+  console.log("getting order by id");
   try {
     const order = await Order.findById(req.params.id);
     res.json(order);
@@ -29,6 +30,58 @@ exports.getOrderById = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.getMostOrderedProducts = async (req, res) => {
+  console.log("Getting most ordered products");
+  try {
+    const orders = await Order.find().lean(); // Use .lean() to get plain JavaScript objects
+    let products = {};
+
+    // Collect all product quantities
+    await Promise.all(
+      orders.map(async (order) => {
+        await Promise.all(
+          order.products.map(async (product) => {
+            if (products[product._id]) {
+              products[product._id] += product.ordered_quantity;
+            } else {
+              products[product._id] = product.ordered_quantity;
+            }
+          })
+        );
+      })
+    );
+
+    // Get all unique product IDs
+    const productIds = Object.keys(products);
+
+    // Fetch all products from the database
+    const productDetails = await Product.find({
+      _id: { $in: productIds }
+    }).lean(); // Use .lean() here as well
+
+    // Convert product details to a map for quick lookup
+    const productMap = new Map(
+      productDetails.map((product) => [product._id.toString(), product])
+    );
+
+    // Filter, sort, and map products based on quantity in the database
+    const sortedProducts = Object.keys(products)
+      .filter((id) => productMap.has(id) && productMap.get(id).quantity > 0) // Keep only products in the database with quantity > 0
+      .sort((a, b) => products[b] - products[a]) // Sort by ordered quantity
+      .map((id) => ({
+        ...productMap.get(id),
+        total_ordered_quantity: products[id] // Add the total ordered quantity
+      }));
+
+    console.log(sortedProducts);
+
+    res.json(sortedProducts);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 
 exports.createOrder = async (req, res) => {
   const { user_id, products, total, purchase_date, address, payment_intent } =

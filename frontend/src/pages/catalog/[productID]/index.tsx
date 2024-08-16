@@ -159,7 +159,7 @@ export default function Product() {
   return product === undefined ? (
     <Loading />
   ) : (
-    <div className="bg-stone-50 flex flex-col items-start justify-start w-full p-5 pt-20 h-full text-gray-600 gap-6 min-h-[calc(100vh-112px)]">
+    <div className="bg-stone-50 flex flex-col items-start justify-start w-full p-5 pt-20 h-full text-gray-600 gap-6 min-h-[calc(100vh-144px)]">
       <div className="w-full grid grid-flow-row grid-cols-2 gap-x-5 px-5 items-center">
         <div>
           {videosAndPhotos && videosAndPhotos.length > 0 && (

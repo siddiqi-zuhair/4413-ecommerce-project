@@ -20,7 +20,7 @@ export default function OrderSuccess() {
 
   const fetchOrder = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/orders/${orderId}`);
+      const response = await fetch(`http://localhost:5000/orders/id/${orderId}`);
       const data = await response.json();
       setOrder(data);
       if (user?._id !== data.user_id) {
@@ -33,7 +33,7 @@ export default function OrderSuccess() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-start p-10 min-h-[calc(100vh-112px)] bg-gray-100 text-gray-700">
+    <div className="flex flex-col items-center justify-start p-10 min-h-[calc(100vh-144px)] bg-gray-100 text-gray-700">
       <h1 className="text-5xl font-bold mb-4">Thanks for your order!</h1>
       <p className="text-4xl">Order summary:</p>
       {order && (

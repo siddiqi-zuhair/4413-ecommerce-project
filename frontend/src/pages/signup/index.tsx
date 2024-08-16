@@ -82,8 +82,8 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-112px)] bg-gray-100 text-gray-600">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+    <div className="flex items-center justify-center min-h-[calc(100vh-144px)] bg-gray-100 text-gray-600">
+      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
         <h2 className="text-5xl font-bold mb-6 text-center">Sign Up</h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="flex space-x-4">

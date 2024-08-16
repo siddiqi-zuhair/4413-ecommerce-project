@@ -125,6 +125,8 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
           payment_intent: client_secret,
         }),
       });
+      const event = new Event("cartChange");
+      window.dispatchEvent(event);
       router.push("/success/" + (await orderResponse.json())._id);
     } catch (error) {
       console.error("Error processing payment:", error);
@@ -137,7 +139,7 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col justify-center w-full pt-5 pl-5"
+      className="flex flex-col justify-center w-full pt-5 pl-5 text-gray-600"
     >
       <div className="flex flex-col w-full mb-4">
         <label className="text-2xl font-semibold mb-2">Email</label>
@@ -258,7 +260,7 @@ export default function Checkout() {
   // Show message if no user is authenticated and redirect is not instant
   if (!user && isAuthenticated === false) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-112px)] bg-gray-100 text-gray-600">
+      <div className="flex items-center justify-center min-h-[calc(100vh-144px)] bg-gray-100 text-gray-600">
         <h2 className="text-3xl font-bold">
           You need to sign in to access the checkout page. You will be
           redirected to the sign-in page shortly.
@@ -270,7 +272,7 @@ export default function Checkout() {
   // Handle case when the cart is empty
   if (!cart || cart.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-112px)] bg-gray-100 text-gray-600">
+      <div className="flex items-center justify-center min-h-[calc(100vh-144px)] bg-gray-100 text-gray-600">
         <h2 className="text-3xl font-bold">
           Your cart is empty. You will be redirected to the catalog page
           shortly.
