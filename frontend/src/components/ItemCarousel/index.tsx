@@ -9,6 +9,7 @@ interface PopularItem {
   price: number;
   platform: string[];
   quantity: number;
+  total_ordered_quantity: number;
 }
 
 interface ItemCarouselProps {

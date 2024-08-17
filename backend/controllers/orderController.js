@@ -82,6 +82,23 @@ exports.getMostOrderedProducts = async (req, res) => {
   }
 };
 
+exports.getSalesHistory = async (req, res) => {
+  try {
+    const salesData = await Order.aggregate([
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$purchase_date" } },
+          totalSales: { $sum: "$total" },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    res.json(salesData);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching sales history" });
+  }
+}
 
 exports.createOrder = async (req, res) => {
   const { user_id, products, total, purchase_date, address, payment_intent } =
