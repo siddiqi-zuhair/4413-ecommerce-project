@@ -13,15 +13,15 @@ export default function Sidebar() {
   }
 
   return (
-    <div className="w-64 h-screen bg-gray-200 p-4">
+    <div className="w-64 min-h-[calc(100vh-144px)] bg-gray-50 p-4 text-gray-600">
       <div className="mb-4">
-        <h2 className="text-center text-xl font-semibold mt-2">{user?.first_name} {user?.last_name}</h2>
-        <p className="text-center text-sm text-gray-600">@{user?.username}</p>
+        <h2 className="text-center text-3xl font-semibold mt-2">{user?.first_name} {user?.last_name}</h2>
+        <p className="text-center text-md text-gray-600">@{user?.username}</p>
       </div>
       <nav className="mt-4">
         <ul className="space-y-2">
           <li>
-            <Link href="/orders">
+            <Link href="/dashboard/orders">
               <span className="flex items-center p-2 text-gray-700 hover:bg-gray-300 rounded-md cursor-pointer">
                 Orders
               </span>
