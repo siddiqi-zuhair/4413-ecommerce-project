@@ -75,8 +75,8 @@ export default function Header() {
   return (
     <header className="bg-gray-600 flex items-center justify-between p-4">
       <Link href="/" passHref>
-        <h1 className="text-4xl font-bold text-gray-600">
-          <img className="w-28" src="/images/logo.png" alt="Logo" />
+        <h1 className="text-4xl font-bold text-gray-600 ">
+          <img className="w-28 rounded-lg" src="/images/logo.png" alt="Logo" />
         </h1>
       </Link>
       <nav className="flex items-center space-x-10 text-3xl font-extrabold text-zinc-200">

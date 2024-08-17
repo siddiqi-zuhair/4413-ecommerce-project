@@ -66,7 +66,8 @@ const ItemCarousel: React.FC<ItemCarouselProps> = ({ items }) => {
                       <span className="text-3xl font-light">${item.price}</span> <br />
                       <span className="text-3xl font-light">
                         Platforms: {item.platform.join(" | ")} <br />
-                        {item.quantity} in stock
+                        {item.quantity} in stock <br />
+                        {item.total_ordered_quantity} sold recently
                       </span>
                     </div>
                   </div>
