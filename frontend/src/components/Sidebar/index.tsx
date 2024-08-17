@@ -1,11 +1,12 @@
-import Link from 'next/link';
-import getUser from '@/hooks/getUser';
+import Link from "next/link";
+import getUser from "@/hooks/getUser";
+import Loading from "../Loading";
 
 export default function Sidebar() {
   const { user, loading, error } = getUser();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading sidebar={true} />;
   }
 
   if (error) {
@@ -15,7 +16,9 @@ export default function Sidebar() {
   return (
     <div className="w-64 min-h-[calc(100vh-144px)] bg-gray-50 p-4 text-gray-600">
       <div className="mb-4">
-        <h2 className="text-center text-3xl font-semibold mt-2">{user?.first_name} {user?.last_name}</h2>
+        <h2 className="text-center text-3xl font-semibold mt-2">
+          {user?.first_name} {user?.last_name}
+        </h2>
         <p className="text-center text-md text-gray-600">@{user?.username}</p>
       </div>
       <nav className="mt-4">

@@ -24,7 +24,14 @@ export default function Orders() {
     const res = await fetch(`http://localhost:5000/orders/user/${user._id}`);
     const data = await res.json();
     console.log(data);
-    setOrders(data.sort((a: any, b: any) => b.purchase_date - a.purchase_date));
+    // sort orders by purchase date from newest to oldest
+    setOrders(
+      data.sort(
+        (a: any, b: any) =>
+          new Date(b.purchase_date).getTime() -
+          new Date(a.purchase_date).getTime()
+      )
+    );
   };
   return (
     <div className="flex flex-row">

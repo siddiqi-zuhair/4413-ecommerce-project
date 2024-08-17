@@ -156,7 +156,7 @@ export default function Cart() {
 
   return (
     <div className="flex items-start justify-center min-h-[calc(100vh-144px)] bg-gray-100 text-gray-600">
-      <h2 className="text-8xl font-black mb-6 text-left pt-5 pl-5">Cart</h2>
+      <h2 className="text-8xl font-black mb-6 text-left p-10">Cart</h2>
       <div className="p-8 w-full flex justify-center">
         <div className="flex flex-col w-2/3 mt-10">
           {cart.map((product: any) => (

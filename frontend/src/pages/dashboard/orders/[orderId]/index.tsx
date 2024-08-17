@@ -1,4 +1,5 @@
 import Sidebar from "@/components/Sidebar";
+import OrderSuccess from "@/pages/success/[orderId]";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
@@ -18,7 +19,9 @@ export default function Order() {
   return (
     <div className="flex flex-row">
       <Sidebar />
-      <h1>Order: {order}</h1>
+      <div className="w-full">
+        <OrderSuccess dashboard={true} />
+      </div>
     </div>
   );
 }
