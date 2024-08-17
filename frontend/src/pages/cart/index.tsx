@@ -2,11 +2,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/authContext";
 import router from "next/router";
+import toast from "react-hot-toast";
 
 export default function Cart() {
   const [cart, setCart] = useState<any[]>([]);
   const { user, isAuthenticated } = useAuth();
-  const cartChange = new Event("cartChange");
   const [cartID, setCartID] = useState<string | null>(null);
 
   const calculateTotal = () => {
@@ -44,16 +44,17 @@ export default function Cart() {
     }
 
     // Dispatch cartChange event
-    window.dispatchEvent(cartChange);
+    window.dispatchEvent(new Event("cartChange"));
   };
 
   const changeQuantity = async (e: any) => {
     const updatedCart = cart.map((product) => {
       if (product._id === e.target.id) {
         if (Number(e.target.value) > product.quantity) {
-          alert(`We only have ${product.quantity} in stock.`);
+          toast.error("Not enough stock");
           return product;
         } else if (Number(e.target.value) < 1) {
+          toast.error("Quantity must be at least 1");
           return product;
         }
         return {
@@ -67,7 +68,13 @@ export default function Cart() {
 
     // Optimistically update localStorage or dispatch changes to the backend
     if (!user) {
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      // only put the _id and the ordered_quantity in localStorage
+      console.log(updatedCart);
+      const cartItems = updatedCart.map((item) => ({
+        id: item._id,
+        ordered_quantity: item.ordered_quantity,
+      }));
+      localStorage.setItem("cart", JSON.stringify(cartItems));
     } else {
       await fetch(`http://localhost:5000/carts/${user._id}`, {
         method: "PATCH",
@@ -79,7 +86,7 @@ export default function Cart() {
     }
 
     // Dispatch cartChange event
-    window.dispatchEvent(cartChange);
+    window.dispatchEvent(new Event("cartChange"));
   };
 
   const fetchProducts = async () => {
@@ -136,6 +143,15 @@ export default function Cart() {
       return; // wait until the authentication state is known
     }
     fetchProducts();
+
+    // Add event listener for cart changes
+    const handleCartChange = () => fetchProducts();
+    window.addEventListener("cartChange", handleCartChange);
+
+    // Cleanup event listener on unmount
+    return () => {
+      window.removeEventListener("cartChange", handleCartChange);
+    };
   }, [isAuthenticated]);
 
   return (

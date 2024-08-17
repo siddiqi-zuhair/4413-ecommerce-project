@@ -4,23 +4,76 @@ import { useRouter } from "next/router";
 import Loading from "@/components/Loading";
 import Carousel from "@/components/ImageVideoCarousel";
 import { useAuth } from "@/context/authContext";
+import toast from "react-hot-toast";
 interface photoVideo {
   type: "cover" | "photo" | "video";
   url: string;
 }
 
 export default function Product() {
-  const [product, setProduct] = useState<Item>();
+  const [product, setProduct] = useState<Item | null>(null);
   const [videosAndPhotos, setVideosAndPhotos] = useState<photoVideo[]>([]);
   const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const param = router.query.productID;
   const { isAuthenticated, user, logout } = useAuth();
+
+  const handleAddToCart = () => {
+    addToCart();
+    toast.success("Added to cart");
+  };
   useEffect(() => {
     if (router.isReady && param) {
       fetchProduct();
     }
   }, [router.isReady, param]);
+
+  const fetchProduct = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/products/" + param);
+
+      if (!res.ok) {
+        throw new Error("Product not found");
+      }
+
+      const data = await res.json();
+      setProduct(data as Item);
+      let tempVidPhoto: photoVideo[] = [];
+
+      if (data.cover) {
+        tempVidPhoto = [...tempVidPhoto, { type: "cover", url: data.cover }];
+      }
+      if (data.videos) {
+        tempVidPhoto = [
+          ...tempVidPhoto,
+          ...data.videos.map((video: string) => ({
+            type: "video",
+            url: video,
+          })),
+        ];
+      }
+
+      if (data.photos) {
+        tempVidPhoto = [
+          ...tempVidPhoto,
+          ...data.photos.map((photo: string) => ({
+            type: "photo",
+            url: photo,
+          })),
+        ];
+      }
+      setVideosAndPhotos(tempVidPhoto);
+    } catch (error) {
+      console.error(error);
+      // Redirect to catalog or display error message
+      toast.error("Product not found");
+      router.push("/catalog");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const addToCart = async () => {
     if (!product) return;
     if (!user) {
@@ -28,7 +81,7 @@ export default function Product() {
       let updatedCart = [];
 
       if (product) {
-        if (cart) {
+      if (cart) {
           updatedCart = JSON.parse(cart);
           let itemExists = false;
 
@@ -39,7 +92,7 @@ export default function Product() {
                 updatedCart[i].ordered_quantity + quantity >
                 product.quantity
               ) {
-                console.log("Not enough stock");
+                toast.error("Not enough stock");
                 return;
               }
               updatedCart[i].ordered_quantity += quantity;
@@ -93,7 +146,7 @@ export default function Product() {
                 cart.products[i].ordered_quantity + quantity >
                 product.quantity
               ) {
-                console.log("Not enough stock");
+                toast.error("Not enough stock");
                 return;
               }
               cart.products[i].ordered_quantity += quantity;
@@ -131,33 +184,12 @@ export default function Product() {
     }
   };
 
-  const fetchProduct = async () => {
-    console.log(param);
-    const res = await fetch("http://localhost:5000/products/" + param);
-    const data = await res.json();
-    setProduct(data as Item);
-    let tempVidPhoto: photoVideo[] = [];
-    if (data.cover) {
-      tempVidPhoto = [...tempVidPhoto, { type: "cover", url: data.cover }];
-    }
-    if (data.videos) {
-      tempVidPhoto = [
-        ...tempVidPhoto,
-        ...data.videos.map((video: string) => ({ type: "video", url: video })),
-      ];
-    }
+  if (loading) {
+    return <Loading />;
+  }
 
-    if (data.photos) {
-      tempVidPhoto = [
-        ...tempVidPhoto,
-        ...data.photos.map((photo: string) => ({ type: "photo", url: photo })),
-      ];
-    }
-    setVideosAndPhotos(tempVidPhoto);
-  };
-
-  return product === undefined ? (
-    <Loading />
+  return product === null ? (
+    <div>Error: Product not found</div>
   ) : (
     <div className="bg-stone-50 flex flex-col items-start justify-start w-full p-5 pt-20 h-full text-gray-600 gap-6 min-h-[calc(100vh-144px)]">
       <div className="w-full grid grid-flow-row grid-cols-2 gap-x-5 px-5 items-center">
@@ -196,8 +228,9 @@ export default function Product() {
           </p>
 
           <button
-            onClick={addToCart}
-            className="bg-red-500 hover:bg-gray-500 font-black text-white p-2 text-3xl rounded-xl"
+            onClick={handleAddToCart}
+            className="bg-red-500 hover:bg-gray-500 font-black text-white p-2 text-3xl rounded-xl disabled:bg-red-800 disabled:brightness-75 disabled:cursor-not-allowed"
+            disabled={quantity > product.quantity}
           >
             Add to cart
           </button>

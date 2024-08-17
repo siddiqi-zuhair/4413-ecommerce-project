@@ -17,7 +17,9 @@ export default function Catalog() {
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   const fetchItems = async () => {
     const res = await fetch("http://localhost:5000/products");
-    const data = await res.json();
+    let data = await res.json();
+    // Remove items that have a quantity of 0 directly from the data array
+    data = data.filter((item: Item) => item.quantity > 0);
     setItems(data as Item[]);
     setFilteredItems(data as Item[]);
     for (const item of data) {

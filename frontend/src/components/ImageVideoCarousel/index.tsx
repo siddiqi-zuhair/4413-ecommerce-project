@@ -9,6 +9,7 @@ const Carousel = ({ items }: CarouselProps) => {
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const getThumbnail = (url: string) => {
+    console.log(url);
     let videoId = url.split("v=")[1];
     if (!videoId) videoId = url.split("embed/")[1];
     return `https://img.youtube.com/vi/${videoId}/0.jpg`;
@@ -57,7 +58,7 @@ const Carousel = ({ items }: CarouselProps) => {
               <iframe
                 width="560"
                 height="315"
-                src={item.url}
+                src={`https://www.${item.url}`}
                 title="Carousel Item"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
