@@ -81,7 +81,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateBackendCart = async (userID: any) => {
-    console.log("Updating backend cart");
     const localStorageCart = localStorage.getItem("cart");
     if (localStorageCart) {
       const cartItems = JSON.parse(localStorageCart);

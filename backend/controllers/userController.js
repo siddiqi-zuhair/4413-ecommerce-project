@@ -150,6 +150,7 @@ exports.adminUpdateUser = async (req, res) => {
       default_address,
       phone_number,
       password,
+      is_admin,
     } = req.body;
 
     if (username) user.username = username;
@@ -158,6 +159,7 @@ exports.adminUpdateUser = async (req, res) => {
     if (last_name) user.last_name = last_name;
     if (default_address) user.default_address = default_address;
     if (phone_number) user.phone_number = phone_number;
+    if (is_admin) user.is_admin = is_admin;
     if (password) {
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(password, salt);

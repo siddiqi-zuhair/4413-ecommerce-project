@@ -32,7 +32,6 @@ exports.getOrderById = async (req, res) => {
 };
 
 exports.getMostOrderedProducts = async (req, res) => {
-  console.log("Getting most ordered products");
   try {
     const orders = await Order.find().lean(); // Use .lean() to get plain JavaScript objects
     let products = {};
@@ -73,8 +72,6 @@ exports.getMostOrderedProducts = async (req, res) => {
         ...productMap.get(id),
         total_ordered_quantity: products[id], // Add the total ordered quantity
       }));
-
-    console.log(sortedProducts);
 
     res.json(sortedProducts);
   } catch (err) {
@@ -117,8 +114,7 @@ exports.createOrder = async (req, res) => {
     const newOrder = await order.save();
     //delete cart after order is created
     await Cart.deleteOne({ user_id });
-    console.log(products);
-    console.log("order created");
+
     // reduce product quantity in database
     products.forEach(async (product) => {
       const productInDB = await Product.findById(product._id);

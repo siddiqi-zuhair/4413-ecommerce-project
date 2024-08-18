@@ -10,7 +10,6 @@ export default function Order() {
   const fetchOrder = async () => {
     const res = await fetch(`http://localhost:5000/orders/${order}`);
     const data = await res.json();
-    console.log(data);
   };
   useEffect(() => {
     if (router.isReady && order) fetchOrder();

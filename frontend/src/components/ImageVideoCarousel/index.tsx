@@ -9,7 +9,6 @@ const Carousel = ({ items }: CarouselProps) => {
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const getThumbnail = (url: string) => {
-    console.log(url);
     let videoId = url.split("v=")[1];
     if (!videoId) videoId = url.split("embed/")[1];
     return `https://img.youtube.com/vi/${videoId}/0.jpg`;

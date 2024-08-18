@@ -67,7 +67,7 @@ export default function EditProfile() {
         `http://localhost:5000/users/email/${email}`
       );
       const data = await response.json();
-      console.log(data);
+
       if (data.exists && email === user.email) {
         return true;
       }
@@ -101,8 +101,7 @@ export default function EditProfile() {
       router.push("/signin");
       return;
     }
-    console.log(data);
-    console.log(user);
+
     const response = await fetch("http://localhost:5000/users/me", {
       method: "PATCH",
       headers: {

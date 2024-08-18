@@ -23,7 +23,7 @@ export default function Orders() {
     if (!user) return;
     const res = await fetch(`http://localhost:5000/orders/user/${user._id}`);
     const data = await res.json();
-    console.log(data);
+
     // sort orders by purchase date from newest to oldest
     setOrders(
       data.sort(

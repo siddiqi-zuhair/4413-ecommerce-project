@@ -81,7 +81,7 @@ export default function Product() {
       let updatedCart = [];
 
       if (product) {
-      if (cart) {
+        if (cart) {
           updatedCart = JSON.parse(cart);
           let itemExists = false;
 
@@ -174,7 +174,6 @@ export default function Product() {
         if (response.ok) {
           const event = new Event("cartChange");
           window.dispatchEvent(event);
-          console.log("Cart updated successfully");
         } else {
           console.error("Failed to update the cart");
         }

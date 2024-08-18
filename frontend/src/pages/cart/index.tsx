@@ -69,7 +69,7 @@ export default function Cart() {
     // Optimistically update localStorage or dispatch changes to the backend
     if (!user) {
       // only put the _id and the ordered_quantity in localStorage
-      console.log(updatedCart);
+
       const cartItems = updatedCart.map((item) => ({
         id: item._id,
         ordered_quantity: item.ordered_quantity,

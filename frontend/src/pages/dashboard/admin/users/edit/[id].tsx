@@ -82,7 +82,7 @@ export default function EditUser() {
         `http://localhost:5000/users/email/${email}`
       );
       const data = await response.json();
-      console.log(data);
+
       if (data.exists && email === user.email) {
         return true;
       }

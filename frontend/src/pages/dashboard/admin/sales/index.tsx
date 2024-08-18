@@ -42,7 +42,6 @@ const toName = (month: string): string => {
 const fetchSalesHistory = async (): Promise<SalesByDay> => {
   const response = await fetch("http://localhost:5000/orders/sales");
   const data = await response.json();
-  console.log(data);
 
   if (!Array.isArray(data)) {
     throw new Error("Unexpected data format");
