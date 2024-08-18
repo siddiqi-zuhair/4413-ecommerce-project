@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Sidebar from "@/components/Sidebar";
 import Loading from "@/components/Loading";
+import withAdmin from "@/context/withAdmin";
 
 type Product = {
   _id: string;
@@ -15,7 +16,7 @@ type Product = {
   price: number;
 };
 
-export default function EditProduct() {
+function EditProduct() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -340,3 +341,4 @@ export default function EditProduct() {
     </div>
   );
 }
+export default withAdmin(EditProduct);

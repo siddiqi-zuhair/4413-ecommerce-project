@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Sidebar from '@/components/Sidebar';
+import withAdmin from '@/context/withAdmin';
 
-export default function CreateProduct() {
+function CreateProduct() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [platform, setPlatform] = useState('');
@@ -274,3 +275,4 @@ export default function CreateProduct() {
     </div>
   );
 }
+export default withAdmin(CreateProduct)

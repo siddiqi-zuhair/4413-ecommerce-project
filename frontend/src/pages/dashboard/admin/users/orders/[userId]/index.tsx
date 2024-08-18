@@ -1,8 +1,9 @@
 import Loading from "@/components/Loading";
+import withAdmin from "@/context/withAdmin";
 import Orders from "@/pages/dashboard/orders";
 import { useRouter } from "next/router";
 
-export default function UserOrder() {
+function UserOrder() {
   const router = useRouter();
   const { userId } = router.query;
 
@@ -16,3 +17,4 @@ export default function UserOrder() {
 
   return <Orders userId={userIdString} />;
 }
+export default withAdmin(UserOrder)
