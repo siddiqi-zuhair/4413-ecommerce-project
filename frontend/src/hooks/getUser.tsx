@@ -10,7 +10,7 @@ type User = {
   phone_number: string;
   is_admin?: boolean;
   stripeCustomerId: string;
-
+  default_address: string;
 };
 
 export default function getUser() {

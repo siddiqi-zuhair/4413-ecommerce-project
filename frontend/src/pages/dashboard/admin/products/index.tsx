@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
+import Loading from '@/components/Loading';
 
 type Product = {
   _id: string;
@@ -59,7 +60,7 @@ export default function ManageProducts() {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   if (error) {

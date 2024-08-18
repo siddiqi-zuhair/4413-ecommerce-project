@@ -27,7 +27,7 @@ exports.getCartById = async (req, res) => {
 };
 
 exports.manageCart = async (req, res) => {
-  console.log("we are managing the cart");
+  ("we are managing the cart");
   try {
     const cart = await Cart.findOne({ user_id: req.params.id });
     if (!cart) {

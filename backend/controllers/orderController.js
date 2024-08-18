@@ -22,7 +22,7 @@ exports.getOrdersByUserId = async (req, res) => {
 };
 
 exports.getOrderById = async (req, res) => {
-  console.log("getting order by id");
+  ("getting order by id");
   try {
     const order = await Order.findById(req.params.id);
     res.json(order);
@@ -57,7 +57,7 @@ exports.getMostOrderedProducts = async (req, res) => {
 
     // Fetch all products from the database
     const productDetails = await Product.find({
-      _id: { $in: productIds }
+      _id: { $in: productIds },
     }).lean(); // Use .lean() here as well
 
     // Convert product details to a map for quick lookup
@@ -71,7 +71,7 @@ exports.getMostOrderedProducts = async (req, res) => {
       .sort((a, b) => products[b] - products[a]) // Sort by ordered quantity
       .map((id) => ({
         ...productMap.get(id),
-        total_ordered_quantity: products[id] // Add the total ordered quantity
+        total_ordered_quantity: products[id], // Add the total ordered quantity
       }));
 
     console.log(sortedProducts);
@@ -87,7 +87,9 @@ exports.getSalesHistory = async (req, res) => {
     const salesData = await Order.aggregate([
       {
         $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$purchase_date" } },
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$purchase_date" },
+          },
           totalSales: { $sum: "$total" },
         },
       },
@@ -98,7 +100,7 @@ exports.getSalesHistory = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Error fetching sales history" });
   }
-}
+};
 
 exports.createOrder = async (req, res) => {
   const { user_id, products, total, purchase_date, address, payment_intent } =

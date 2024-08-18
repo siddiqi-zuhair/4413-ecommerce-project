@@ -9,6 +9,7 @@ const {
   deleteUser,
   checkEmail,
   checkUsername,
+  adminUpdateUser,
 } = require("../controllers/userController");
 const authenticateToken = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -21,5 +22,6 @@ router.get("/:id", getUserById);
 router.patch("/me", authenticateToken, updateUser);
 router.delete("/:id", authenticateToken, deleteUser);
 router.get("/email/:email", checkEmail);
-router.get("username/:username", checkUsername);
+router.patch("/:id", authenticateToken, adminUpdateUser);
+router.get("/username/:username", checkUsername);
 module.exports = router;

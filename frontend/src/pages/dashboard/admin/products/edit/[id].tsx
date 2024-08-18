@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import Sidebar from '@/components/Sidebar';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import Sidebar from "@/components/Sidebar";
+import Loading from "@/components/Loading";
 
 type Product = {
   _id: string;
@@ -34,42 +35,42 @@ export default function EditProduct() {
       setUpdatedProduct(data);
       setLoading(false);
     } catch (error) {
-      setError('Failed to load product data.');
+      setError("Failed to load product data.");
       setLoading(false);
     }
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-      router.push('/signin');
+      router.push("/signin");
       return;
     }
 
     try {
       const response = await fetch(`http://localhost:5000/products/${id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(updatedProduct),
       });
 
       if (response.ok) {
-        alert('Product updated successfully!');
-        router.push('/dashboard/admin/products');
+        alert("Product updated successfully!");
+        router.push("/dashboard/admin/products");
       } else {
-        setError('Failed to update product.');
+        setError("Failed to update product.");
       }
     } catch (error) {
-      setError('Failed to update product.');
+      setError("Failed to update product.");
     }
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   if (error) {
@@ -83,61 +84,99 @@ export default function EditProduct() {
         <h1 className="text-3xl font-bold mb-4">Edit Product</h1>
         <form onSubmit={handleUpdate} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
               Name
             </label>
             <input
               type="text"
               id="name"
-              value={updatedProduct.name || ''}
-              onChange={(e) => setUpdatedProduct({ ...updatedProduct, name: e.target.value })}
+              value={updatedProduct.name || ""}
+              onChange={(e) =>
+                setUpdatedProduct({ ...updatedProduct, name: e.target.value })
+              }
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700"
+            >
               Description
             </label>
             <textarea
               id="description"
-              value={updatedProduct.description || ''}
-              onChange={(e) => setUpdatedProduct({ ...updatedProduct, description: e.target.value })}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" rows={10}
+              value={updatedProduct.description || ""}
+              onChange={(e) =>
+                setUpdatedProduct({
+                  ...updatedProduct,
+                  description: e.target.value,
+                })
+              }
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              rows={10}
             />
           </div>
           <div>
-            <label htmlFor="platform" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="platform"
+              className="block text-sm font-medium text-gray-700"
+            >
               Platform
             </label>
             <input
               type="text"
               id="platform"
-              value={updatedProduct.platform?.join(', ') || ''}
-              onChange={(e) => setUpdatedProduct({ ...updatedProduct, platform: e.target.value.split(', ') })}
+              value={updatedProduct.platform?.join(", ") || ""}
+              onChange={(e) =>
+                setUpdatedProduct({
+                  ...updatedProduct,
+                  platform: e.target.value.split(", "),
+                })
+              }
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
           <div>
-            <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="quantity"
+              className="block text-sm font-medium text-gray-700"
+            >
               Quantity
             </label>
             <input
               type="number"
               id="quantity"
-              value={updatedProduct.quantity || ''}
-              onChange={(e) => setUpdatedProduct({ ...updatedProduct, quantity: Number(e.target.value) })}
+              value={updatedProduct.quantity || ""}
+              onChange={(e) =>
+                setUpdatedProduct({
+                  ...updatedProduct,
+                  quantity: Number(e.target.value),
+                })
+              }
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
           <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="price"
+              className="block text-sm font-medium text-gray-700"
+            >
               Price
             </label>
             <input
               type="number"
               id="price"
-              value={updatedProduct.price || ''}
-              onChange={(e) => setUpdatedProduct({ ...updatedProduct, price: Number(e.target.value) })}
+              value={updatedProduct.price || ""}
+              onChange={(e) =>
+                setUpdatedProduct({
+                  ...updatedProduct,
+                  price: Number(e.target.value),
+                })
+              }
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>

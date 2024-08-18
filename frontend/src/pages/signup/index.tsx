@@ -1,241 +1,197 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
+import getUser from "@/hooks/getUser";
+import Sidebar from "@/components/Sidebar";
+import Loading from "@/components/Loading";
 
-export default function SignUp() {
+type User = {
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone_number: string;
+  address?: string;
+};
+
+type FormInputs = User & { password: string };
+
+export default function EditProfile() {
+  const { user, loading, error } = getUser();
   const router = useRouter();
 
-  interface ContactFormInputs {
-    firstName: string;
-    lastName: string;
-    username: string;
-    email: string;
-    password: string;
-    phoneNumber: string;
-    address: string;
+  const { register, handleSubmit, setValue } = useForm<FormInputs>({
+    defaultValues: {
+      username: "",
+      email: "",
+      first_name: "",
+      last_name: "",
+      phone_number: "",
+      address: "",
+      password: "",
+    },
+  });
+
+  useEffect(() => {
+    if (user) {
+      // Populate form fields with user data
+      setValue("username", user.username);
+      setValue("email", user.email);
+      setValue("first_name", user.first_name);
+      setValue("last_name", user.last_name);
+      setValue("phone_number", user.phone_number);
+      setValue("address", user.default_address || "");
+    }
+  }, [user, setValue]);
+
+  const onSubmit: SubmitHandler<FormInputs> = async (data) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/signin");
+      return;
+    }
+
+    const response = await fetch("http://localhost:5000/users/me", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      alert("Profile updated successfully!");
+    } else {
+      const errorText = await response.text();
+      console.error("Error updating profile:", errorText);
+    }
+  };
+
+  if (loading) {
+    return <Loading />;
   }
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ContactFormInputs>();
-
-  const onSubmit: SubmitHandler<ContactFormInputs> = async (data) => {
-    try {
-      const response = await fetch("http://localhost:5000/users/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: data.username,
-          password: data.password,
-          email: data.email,
-          first_name: data.firstName,
-          last_name: data.lastName,
-          phone_number: data.phoneNumber,
-          default_address: data.address,
-          is_admin: false,
-        }),
-      });
-
-      if (response.ok) {
-        router.push("/signin");
-      } else {
-        const errorText = await response.text();
-        console.error("Error signing up:", errorText);
-      }
-    } catch (error) {
-      console.error("Error during signup:", error);
-    }
-  };
-
-  const handleLogin = () => {
-    router.push("/signin");
-  };
-
-  const checkEmail = async (email: string) => {
-    try {
-      const response = await fetch(
-        `http://localhost:5000/users/email/${email}`
-      );
-      const data = await response.json();
-      return data.exists;
-    } catch (error) {
-      console.error("Error checking email:", error);
-      return true;
-    }
-  };
-
-  const checkUsername = async (username: string) => {
-    try {
-      const response = await fetch(
-        `http://localhost:5000/users/username/${username}`
-      );
-      const data = await response.json();
-      return data.exists;
-    } catch (error) {
-      console.error("Error checking username:", error);
-      return true;
-    }
-  };
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-144px)] bg-gray-100 text-gray-600">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-        <h2 className="text-5xl font-bold mb-6 text-center">Sign Up</h2>
+    <div className="flex bg-gray-200 text-gray-600">
+      <Sidebar />
+      <div className="container mx-auto p-10 flex-1">
+        <h1 className="text-6xl font-bold mb-4">Edit Profile Settings</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="flex space-x-4">
-            <div className="w-1/2">
-              <input
-                type="text"
-                id="firstName"
-                placeholder="First name"
-                {...register("firstName", {
-                  required: "First name is required",
-                })}
-                className={`w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.firstName ? "border-red-500" : ""
-                }`}
-              />
-              {errors.firstName && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.firstName.message}
-                </p>
-              )}
-            </div>
-            <div className="w-1/2">
-              <input
-                type="text"
-                id="lastName"
-                placeholder="Last name"
-                {...register("lastName", { required: "Last name is required" })}
-                className={`w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.lastName ? "border-red-500" : ""
-                }`}
-              />
-              {errors.lastName && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.lastName.message}
-                </p>
-              )}
-            </div>
-          </div>
           <div>
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Username
+            </label>
             <input
               type="text"
               id="username"
-              placeholder="Username"
-              {...register("username", {
-                required: "Username is required",
-                validate: async (value) => {
-                  const exists = await checkUsername(value);
-                  return !exists || "Username already in use.";
-                },
-              })}
-              className={`w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.username ? "border-red-500" : ""
-              }`}
+              {...register("username", { required: "Username is required" })}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
-            {errors.username && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.username.message}
-              </p>
-            )}
           </div>
           <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
             <input
-              type="text"
+              type="email"
               id="email"
-              placeholder="Email"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /\S+@\S+\.\S+/,
-                  message: "Entered value does not match email format",
-                },
-                validate: async (value) => {
-                  const exists = await checkEmail(value);
-                  return !exists || "Email already in use.";
-                },
-              })}
-              className={`w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.email ? "border-red-500" : ""
-              }`}
+              {...register("email", { required: "Email is required" })}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
-            {errors.email && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.email.message}
-              </p>
-            )}
           </div>
           <div>
+            <label
+              htmlFor="first_name"
+              className="block text-sm font-medium text-gray-700"
+            >
+              First Name
+            </label>
             <input
               type="text"
-              id="phone"
-              placeholder="Phone"
-              {...register("phoneNumber", {
-                required: "Phone number is required",
-                pattern: {
-                  value: /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/,
-                  message: "Phone number is invalid",
-                },
+              id="first_name"
+              {...register("first_name", {
+                required: "First name is required",
               })}
-              className={`w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.phoneNumber ? "border-red-500" : ""
-              }`}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
-            {errors.phoneNumber && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.phoneNumber.message}
-              </p>
-            )}
           </div>
           <div>
+            <label
+              htmlFor="last_name"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Last Name
+            </label>
+            <input
+              type="text"
+              id="last_name"
+              {...register("last_name", { required: "Last name is required" })}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="phone_number"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Phone Number
+            </label>
+            <input
+              type="text"
+              id="phone_number"
+              {...register("phone_number", {
+                required: "Phone number is required",
+              })}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="address"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Address
+            </label>
             <input
               type="text"
               id="address"
-              placeholder="Address"
-              {...register("address", { required: "Address is required" })}
-              className={`w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.address ? "border-red-500" : ""
-              }`}
+              {...register("address")}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
-            {errors.address && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.address.message}
-              </p>
-            )}
           </div>
           <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              New Password
+            </label>
             <input
               type="password"
               id="password"
-              placeholder="Password"
-              {...register("password", { required: "Password is required" })}
-              className={`w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.password ? "border-red-500" : ""
-              }`}
+              {...register("password", {
+                required: "New password is required",
+              })}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
-            {errors.password && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.password.message}
-              </p>
-            )}
           </div>
           <button
             type="submit"
-            className="w-full py-2 bg-red-500 text-white rounded-xl outline outline-1 hover:bg-white font-bold hover:text-black"
+            className="w-full py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
           >
-            Create account
+            Save Changes
           </button>
-          <p className="text-center text-sm mt-4 text-gray-600">
-            Have an account?{" "}
-            <a href="#" onClick={handleLogin} className="text-blue-500">
-              Sign in.
-            </a>
-          </p>
         </form>
       </div>
     </div>
