@@ -80,9 +80,6 @@ export default function SignIn() {
           <button onClick={handleSignUp} className="text-blue-500">
             Create account
           </button>
-          <a href="#" className="text-blue-500">
-            Forgot password?
-          </a>
         </div>
       </div>
     </div>
