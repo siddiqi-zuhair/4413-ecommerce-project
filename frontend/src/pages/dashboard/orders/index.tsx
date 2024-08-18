@@ -4,15 +4,17 @@ import { useAuth } from "@/context/authContext";
 import Link from "next/link";
 import router from "next/router";
 import { useEffect, useState } from "react";
+
 export default function Orders() {
   const [orders, setOrders] = useState<any[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
   const { isAuthenticated, user, loading } = useAuth();
 
   useEffect(() => {
     if (loading) return;
     if (!isAuthenticated) {
       router.push("/signin");
-    } else if (loading || !user) {
+    } else if (!user) {
       return;
     } else {
       fetchOrders();
@@ -21,10 +23,11 @@ export default function Orders() {
 
   const fetchOrders = async () => {
     if (!user) return;
+    setOrdersLoading(true);
     const res = await fetch(`http://localhost:5000/orders/user/${user._id}`);
     const data = await res.json();
 
-    // sort orders by purchase date from newest to oldest
+    // Sort orders by purchase date from newest to oldest
     setOrders(
       data.sort(
         (a: any, b: any) =>
@@ -32,15 +35,21 @@ export default function Orders() {
           new Date(a.purchase_date).getTime()
       )
     );
+    setOrdersLoading(false);
   };
+
   return (
     <div className="flex flex-row">
       <Sidebar />
       <div className="bg-gray-200 w-full min-h-[calc(100vh-144px)] p-5 text-gray-600">
         <h1 className="text-7xl font-bold mb-4">Orders</h1>
         <div>
-          {orders.length === 0 ? (
+          {loading || ordersLoading ? (
             <Loading />
+          ) : orders.length === 0 ? (
+            <div className="w-full bg-gray-200 text-gray-600 flex justify-center items-center text-6xl font-bold">
+              You currently have no orders
+            </div>
           ) : (
             <div className="flex flex-col space-y-4">
               {orders.map((order) => (
