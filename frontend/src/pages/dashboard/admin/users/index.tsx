@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 import Loading from "@/components/Loading";
+import { useAuth } from "@/context/authContext";
 
 type User = {
   _id: string;
@@ -18,6 +19,8 @@ export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, isAuthenticated } = useAuth();
+  const loggedInUserId = user?._id;
 
   useEffect(() => {
     fetchUsers();
@@ -105,7 +108,8 @@ export default function UserManagement() {
                   </Link>
                   <button
                     onClick={() => deleteUser(user._id)}
-                    className="p-2 bg-red-500 text-white rounded"
+                    className="p-2 bg-red-500 text-white rounded disabled:brightness-75 disabled:cursor-not-allowed disabled:bg-red-700"
+                    disabled={user._id === loggedInUserId}
                   >
                     Delete
                   </button>
