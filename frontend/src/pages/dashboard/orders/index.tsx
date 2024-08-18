@@ -4,8 +4,11 @@ import { useAuth } from "@/context/authContext";
 import Link from "next/link";
 import router from "next/router";
 import { useEffect, useState } from "react";
+interface OrdersProps {
+  userId: string;
+}
 
-export default function Orders() {
+export default function Orders({ userId }: OrdersProps) {
   const [orders, setOrders] = useState<any[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const { isAuthenticated, user, loading } = useAuth();
@@ -24,7 +27,9 @@ export default function Orders() {
   const fetchOrders = async () => {
     if (!user) return;
     setOrdersLoading(true);
-    const res = await fetch(`http://localhost:5000/orders/user/${user._id}`);
+    const res = await fetch(
+      `http://localhost:5000/orders/user/${userId ? userId : user._id}`
+    );
     const data = await res.json();
 
     // Sort orders by purchase date from newest to oldest
@@ -48,7 +53,9 @@ export default function Orders() {
             <Loading />
           ) : orders.length === 0 ? (
             <div className="w-full bg-gray-200 text-gray-600 flex justify-center items-center text-6xl font-bold">
-              You currently have no orders
+              {userId
+                ? "This user currently has no orders"
+                : "You currently have no orders"}
             </div>
           ) : (
             <div className="flex flex-col space-y-4">

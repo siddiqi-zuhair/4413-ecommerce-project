@@ -26,7 +26,7 @@ export default function OrderSuccess({ dashboard }: { dashboard: boolean }) {
       );
       const data = await response.json();
       setOrder(data);
-      if (user?._id !== data.user_id) {
+      if (user?._id !== data.user_id && user?.is_admin == false) {
         console.error("You are not authorized to view this order.");
         router.push("/");
       }
@@ -51,9 +51,13 @@ export default function OrderSuccess({ dashboard }: { dashboard: boolean }) {
             >
               <div className="flex flex-col flex-grow">
                 {dashboard && (
-                  <Link href={`/catalog/${product._id}`} ><h3 className="text-3xl font-semibold">{product.name}</h3></Link>
+                  <Link href={`/catalog/${product._id}`}>
+                    <h3 className="text-3xl font-semibold">{product.name}</h3>
+                  </Link>
                 )}
-                {!dashboard && <h3 className="text-3xl font-semibold">{product.name}</h3>}
+                {!dashboard && (
+                  <h3 className="text-3xl font-semibold">{product.name}</h3>
+                )}
                 <p className="text-gray-500 text-xl">
                   Price: ${product.price.toFixed(2)}
                 </p>

@@ -93,6 +93,11 @@ export default function UserManagement() {
                   {user.is_admin ? "Admin" : "Member"}
                 </td>
                 <td className="py-2 px-4">
+                  <Link href={`/dashboard/admin/users/orders/${user._id}`}>
+                    <span className="p-2 bg-green-500 text-white rounded mr-2">
+                      Order History
+                    </span>
+                  </Link>
                   <Link href={`/dashboard/admin/users/edit/${user._id}`}>
                     <span className="p-2 bg-blue-500 text-white rounded mr-2">
                       Edit
