@@ -68,6 +68,7 @@ exports.getMostOrderedProducts = async (req, res) => {
     const sortedProducts = Object.keys(products)
       .filter((id) => productMap.has(id) && productMap.get(id).quantity > 0) // Keep only products in the database with quantity > 0
       .sort((a, b) => products[b] - products[a]) // Sort by ordered quantity
+      .slice(0, 5)
       .map((id) => ({
         ...productMap.get(id),
         total_ordered_quantity: products[id], // Add the total ordered quantity
