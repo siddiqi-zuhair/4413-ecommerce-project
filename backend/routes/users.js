@@ -12,6 +12,7 @@ const {
   adminUpdateUser,
 } = require("../controllers/userController");
 const authenticateToken = require("../middlewares/authMiddleware");
+const checkAdminRole = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 router.post("/signin", signIn);
@@ -22,6 +23,6 @@ router.get("/:id", getUserById);
 router.patch("/me", authenticateToken, updateUser);
 router.delete("/:id", authenticateToken, deleteUser);
 router.get("/email/:email", checkEmail);
-router.patch("/:id", authenticateToken, adminUpdateUser);
+router.patch("/:id", authenticateToken, checkAdminRole, adminUpdateUser);
 router.get("/username/:username", checkUsername);
 module.exports = router;

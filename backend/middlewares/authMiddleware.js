@@ -1,8 +1,8 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
   if (token == null) return res.sendStatus(401);
 
@@ -13,4 +13,12 @@ function authenticateToken(req, res, next) {
   });
 }
 
+function checkAdminRole(req, res, next) {
+  if (!req.user.is_admin) {
+    return res.status(403).json({ message: "Access denied. Admins only." });
+  }
+  next();
+}
+
+module.exports = checkAdminRole;
 module.exports = authenticateToken;
