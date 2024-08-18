@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import Sidebar from "@/components/Sidebar";
 import Loading from "@/components/Loading";
 import withAdmin from "@/context/withAdmin";
+import toast from "react-hot-toast";
 
 type Product = {
   _id: string;
@@ -64,7 +65,7 @@ function EditProduct() {
       });
 
       if (response.ok) {
-        alert("Product updated successfully!");
+        toast.success("Product updated successfully!");
         router.push("/dashboard/admin/products");
       } else {
         setError("Failed to update product.");

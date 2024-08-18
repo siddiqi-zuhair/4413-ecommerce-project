@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Sidebar from '@/components/Sidebar';
 import withAdmin from '@/context/withAdmin';
+import toast from 'react-hot-toast';
 
 function CreateProduct() {
   const [name, setName] = useState('');
@@ -89,7 +90,7 @@ function CreateProduct() {
     });
 
     if (response.ok) {
-        alert('Product created successfully!');
+        toast.success('Product created successfully!');
         router.push('/dashboard/admin/products');
     } else {
         const errorMessage = await response.text();
