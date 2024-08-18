@@ -129,6 +129,24 @@ exports.createProductFromAdmin = async (req, res) => {
     const newProduct = await product.save();
     res.status(201).json(newProduct);
   } catch (err) {
+    console.error('Error creating product:', err.message);
     res.status(400).json({ message: err.message });
+  }
+};
+
+// Delete One Product by ID
+exports.deleteProductById = async (req, res) => {
+  console.log("Delete request received for ID:", req.params.id);  // Log the ID
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) {
+      console.log("Product not found");  // Log if product isn't found
+      return res.status(404).json({ message: "Product not found" });
+    }
+    console.log("Product deleted successfully");  // Log successful deletion
+    res.json({ message: "Product deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting product:", err);  // Log any errors
+    res.status(500).json({ message: err.message });
   }
 };

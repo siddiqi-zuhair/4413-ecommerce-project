@@ -9,6 +9,8 @@ type Product = {
   description: string;
   platform: string[];
   cover: string;
+  photos: string[];
+  videos: string[];
   quantity: number;
   price: number;
 };
@@ -18,6 +20,8 @@ export default function EditProduct() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatedProduct, setUpdatedProduct] = useState<Partial<Product>>({});
+  const [newPhoto, setNewPhoto] = useState<string>("");
+  const [newVideo, setNewVideo] = useState<string>("");
   const router = useRouter();
   const { id } = router.query;
 
@@ -67,6 +71,51 @@ export default function EditProduct() {
     } catch (error) {
       setError("Failed to update product.");
     }
+  };
+
+  const handleAddPhoto = () => {
+    if (newPhoto) {
+      setUpdatedProduct({
+        ...updatedProduct,
+        photos: [...(updatedProduct.photos || []), newPhoto],
+      });
+      setNewPhoto("");
+    }
+  };
+
+  const handleAddVideo = () => {
+    if (newVideo) {
+      // Convert YouTube URL to embed format
+      const videoID = newVideo.split("v=")[1];
+      const ampersandPosition = videoID.indexOf("&");
+      const formattedVideoURL =
+        ampersandPosition !== -1
+          ? videoID.substring(0, ampersandPosition)
+          : videoID;
+      const embedURL = `youtube.com/embed/${formattedVideoURL}`;
+
+      setUpdatedProduct({
+        ...updatedProduct,
+        videos: [...(updatedProduct.videos || []), embedURL],
+      });
+      setNewVideo("");
+    }
+  };
+
+  const handleRemovePhoto = (index: number) => {
+    const newPhotos = updatedProduct.photos?.filter((_, i) => i !== index);
+    setUpdatedProduct({
+      ...updatedProduct,
+      photos: newPhotos,
+    });
+  };
+
+  const handleRemoveVideo = (index: number) => {
+    const newVideos = updatedProduct.videos?.filter((_, i) => i !== index);
+    setUpdatedProduct({
+      ...updatedProduct,
+      videos: newVideos,
+    });
   };
 
   if (loading) {
@@ -139,6 +188,106 @@ export default function EditProduct() {
               }
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
+          </div>
+          <div>
+            <label
+              htmlFor="cover"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Cover Image URL
+            </label>
+            <input
+              type="text"
+              id="cover"
+              value={updatedProduct.cover || ""}
+              onChange={(e) =>
+                setUpdatedProduct({ ...updatedProduct, cover: e.target.value })
+              }
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="photos"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Photos (Image URLs)
+            </label>
+            <input
+              type="text"
+              id="photos"
+              value={newPhoto}
+              onChange={(e) => setNewPhoto(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+            <button
+              type="button"
+              onClick={handleAddPhoto}
+              className="mt-2 py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-700"
+            >
+              Add Photo
+            </button>
+            <div className="mt-4 grid grid-cols-4 gap-2">
+              {updatedProduct.photos?.map((photo, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={photo}
+                    alt={`Photo ${index + 1}`}
+                    className="w-full h-auto"
+                    style={{ maxWidth: "100px", maxHeight: "100px" }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemovePhoto(index)}
+                    className="absolute top-0 left-0 bg-red-500 text-white rounded-full p-1 text-xs"
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label
+              htmlFor="videos"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Videos (YouTube Videos)
+            </label>
+            <input
+              type="text"
+              id="videos"
+              value={newVideo}
+              onChange={(e) => setNewVideo(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+            <button
+              type="button"
+              onClick={handleAddVideo}
+              className="mt-2 py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-700"
+            >
+              Add Video
+            </button>
+            <div className="mt-4 grid grid-cols-4 gap-2">
+              {updatedProduct.videos?.map((video, index) => (
+                <div key={index} className="relative">
+                  <iframe
+                    src={`https://${video}`}
+                    title={`Video ${index}`}
+                    className="w-full h-auto"
+                    style={{ maxWidth: "200px", maxHeight: "150px" }}
+                    allowFullScreen
+                  ></iframe>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveVideo(index)}
+                    className="absolute top-0 left-0 bg-red-500 text-white rounded-full p-1 text-xs"
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
           <div>
             <label
