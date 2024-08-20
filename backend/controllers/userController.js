@@ -39,16 +39,14 @@ exports.signUp = async (req, res) => {
 // Sign-In Controller
 exports.signIn = async (req, res) => {
   const { username, password } = req.body;
-  console.log(username, password)
   try {
     const user = await User.findOne({ username });
-    console.log(user)
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log(isMatch)
+    console.log(isMatch);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }

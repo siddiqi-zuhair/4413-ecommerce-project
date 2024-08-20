@@ -11,8 +11,10 @@ const {
   checkUsername,
   adminUpdateUser,
 } = require("../controllers/userController");
-const authenticateToken = require("../middlewares/authMiddleware");
-const checkAdminRole = require("../middlewares/authMiddleware");
+const {
+  authenticateToken,
+  checkAdminRole,
+} = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 router.post("/signin", signIn);

@@ -16,14 +16,29 @@ exports.getMultipleProductsById = async (req, res) => {
   try {
     const ids = req.query.ids ? req.query.ids.split(",") : [];
 
-    if (!ids.every((id) => mongoose.Types.ObjectId.isValid(id))) {
-      return res.status(400).json({ message: "Invalid ID format" });
+    // Filter out invalid IDs
+    const validIds = ids.filter((id) => mongoose.Types.ObjectId.isValid(id));
+
+    // Check if there are no valid IDs
+    if (validIds.length === 0) {
+      return res.status(400).json({ message: "No valid IDs provided" });
     }
 
-    const products = await Product.find({ _id: { $in: ids } });
+    // Query the database for products with the valid IDs
+    const products = await Product.find({ _id: { $in: validIds } });
+
+    // If no products are found, return a 404 status
+    if (products.length === 0) {
+      return res.status(404).json({ message: "No products found" });
+    }
+
+    // Return the found products
     res.json(products);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Error retrieving products:", err.message);
+    if (!res.headersSent) {
+      return res.status(500).json({ message: err.message });
+    }
   }
 };
 
@@ -112,7 +127,6 @@ exports.createProductFromAdmin = async (req, res) => {
     price,
     photos,
     videos,
-    is_admin,
   } = req.body;
   const product = new Product({
     name,
@@ -127,23 +141,26 @@ exports.createProductFromAdmin = async (req, res) => {
 
   try {
     const newProduct = await product.save();
-    res.status(201).json(newProduct);
+    if (!res.headersSent) {
+      res.status(201).json(newProduct);
+    }
   } catch (err) {
     console.error("Error creating product:", err.message);
-    res.status(400).json({ message: err.message });
+    if (!res.headersSent) {
+      res.status(400).json({ message: err.message });
+    }
   }
 };
 
 // Delete One Product by ID
 exports.deleteProductById = async (req, res) => {
-  console.log("Delete request received for ID:", req.params.id); // Log the ID
+  let product;
   try {
-    const product = await Product.findByIdAndDelete(req.params.id);
-    if (!product) {
-      console.log("Product not found"); // Log if product isn't found
+    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      product = await Product.findByIdAndDelete(req.params.id);
+    } else {
       return res.status(404).json({ message: "Product not found" });
     }
-    console.log("Product deleted successfully"); // Log successful deletion
     res.json({ message: "Product deleted successfully" });
   } catch (err) {
     console.error("Error deleting product:", err); // Log any errors
