@@ -14,11 +14,13 @@ function authenticateToken(req, res, next) {
 }
 
 function checkAdminRole(req, res, next) {
-  if (!req.user.is_admin) {
+  if (!req.user || !req.user.is_admin) {
     return res.status(403).json({ message: "Access denied. Admins only." });
   }
   next();
 }
 
-module.exports = checkAdminRole;
-module.exports = authenticateToken;
+module.exports = {
+  authenticateToken,
+  checkAdminRole,
+};

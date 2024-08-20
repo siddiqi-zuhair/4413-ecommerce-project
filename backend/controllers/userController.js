@@ -1,6 +1,8 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 
 // Sign-Up Controller
 exports.signUp = async (req, res) => {
@@ -16,8 +18,17 @@ exports.signUp = async (req, res) => {
   } = req.body;
 
   try {
+    // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create a new Stripe customer
+    const customer = await stripe.customers.create({
+      email: email,
+      name: `${first_name} ${last_name}`,
+    });
+
+    // Create a new user in the database with the Stripe customer ID
     const user = new User({
       username,
       password: hashedPassword,
@@ -26,12 +37,14 @@ exports.signUp = async (req, res) => {
       first_name,
       last_name,
       phone_number,
+      stripeCustomerId: customer.id, // Store Stripe customer ID in the user record
       is_admin: is_admin || false, // Default to false if not provided
     });
 
     const newUser = await user.save();
     res.status(201).json(newUser);
   } catch (err) {
+    console.error('Error creating user:', err.message);
     res.status(400).json({ message: err.message });
   }
 };

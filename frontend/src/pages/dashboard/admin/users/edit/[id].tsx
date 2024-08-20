@@ -93,24 +93,41 @@ function EditUser() {
     }
   };
 
-  const fetchUser = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/users/${id}`);
-      const data = await response.json();
-      setUser(data);
-      setValue("username", data.username);
-      setValue("email", data.email);
-      setValue("first_name", data.first_name);
-      setValue("last_name", data.last_name);
-      setValue("phone_number", data.phone_number);
-      setValue("is_admin", data.is_admin);
-      setValue("default_address", data.default_address);
+const fetchUser = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("Unauthorized");
       setLoading(false);
-    } catch (error) {
-      setError("Failed to load user data.");
-      setLoading(false);
+      return;
     }
-  };
+
+    const response = await fetch(`http://localhost:5000/users/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch user data");
+    }
+
+    const data = await response.json();
+    setUser(data);
+    setValue("username", data.username);
+    setValue("email", data.email);
+    setValue("first_name", data.first_name);
+    setValue("last_name", data.last_name);
+    setValue("phone_number", data.phone_number);
+    setValue("is_admin", data.is_admin);
+    setValue("default_address", data.default_address);
+    setLoading(false);
+  } catch (error) {
+    setError("Failed to load user data.");
+    setLoading(false);
+  }
+};
+
 
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     try {
