@@ -115,7 +115,7 @@ function EditUser() {
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     try {
       if (!user) return;
-      console.log(data);
+
       const token = localStorage.getItem("token");
       const response = await fetch(`http://localhost:5000/users/${id}`, {
         method: "PATCH",
@@ -326,4 +326,4 @@ function EditUser() {
   );
 }
 
-export default withAdmin(EditUser)
+export default withAdmin(EditUser);

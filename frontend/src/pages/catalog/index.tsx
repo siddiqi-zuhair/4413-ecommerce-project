@@ -37,6 +37,7 @@ export default function Catalog() {
     const filteredItems = items.filter((item) =>
       item.name.toLowerCase().includes(keyword.toLowerCase())
     );
+    console.log(filteredItems);
     setFilteredItems(filteredItems);
   };
   useEffect(() => {
@@ -61,7 +62,7 @@ export default function Catalog() {
     }
   }, [chosenFilter]);
 
-  return filteredItems.length === 0 ? (
+  return items.length < 1 ? (
     <Loading />
   ) : (
     <div className="bg-stone-50 flex flex-col items-start justify-start w-full h-full min-h-[calc(100vh-144px)] text-gray-600 ">
@@ -90,9 +91,15 @@ export default function Catalog() {
       </div>
 
       <div className="flex flex-wrap justify-center pt-10">
-        {filteredItems.map((item) => (
-          <CatalogItem key={item._id} item={item} />
-        ))}
+        {filteredItems &&
+          filteredItems.map((item) => (
+            <CatalogItem key={item._id} item={item} />
+          ))}
+        {filteredItems.length < 1 && (
+          <div className="flex items-center text-6xl p-10 font-bold w-full h-full">
+            No items with those filter options{" "}
+          </div>
+        )}
       </div>
     </div>
   );

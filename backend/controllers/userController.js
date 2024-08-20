@@ -39,14 +39,16 @@ exports.signUp = async (req, res) => {
 // Sign-In Controller
 exports.signIn = async (req, res) => {
   const { username, password } = req.body;
-
+  console.log(username, password)
   try {
     const user = await User.findOne({ username });
+    console.log(user)
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log(isMatch)
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -153,7 +155,6 @@ exports.adminUpdateUser = async (req, res) => {
       is_admin,
     } = req.body;
 
-    console.log(is_admin);
     if (username) user.username = username;
     if (email) user.email = email;
     if (first_name) user.first_name = first_name;
@@ -165,7 +166,6 @@ exports.adminUpdateUser = async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(password, salt);
     }
-    console.log(user);
 
     await user.save();
     res.json(user);
