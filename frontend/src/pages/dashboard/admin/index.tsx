@@ -1,20 +1,12 @@
 import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
-import { useAuth } from "@/context/authContext";
+import withAdmin from "@/context/withAdmin";
 
-export default function AdminOptions() {
-  const { user } = useAuth();
-
-  if (!user || !user.is_admin) {
-    return (
-      <div className="flex justify-center items-center font-bold text-8xl bg-gray-50 text-gray-600 min-h-[calc(100vh-144px)]">
-        Access Denied
-      </div>
-    );
-  }
+function AdminOptions() {
   return (
     <div className="flex bg-gray-200 text-gray-600">
       <Sidebar />
+
       <div className="container mx-auto p-10">
         <h1 className="text-6xl font-bold mb-4">Admin Options</h1>
         <div className="grid space-y-4">
@@ -38,3 +30,4 @@ export default function AdminOptions() {
     </div>
   );
 }
+export default withAdmin(AdminOptions);

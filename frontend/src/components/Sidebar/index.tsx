@@ -37,6 +37,13 @@ export default function Sidebar() {
               </span>
             </Link>
           </li>
+          <li>
+            <Link href="/dashboard/payment">
+              <span className="flex items-center p-2 text-gray-700 hover:bg-gray-300 rounded-md cursor-pointer">
+                Manage Payment Info
+              </span>
+            </Link>
+          </li>
           {user?.is_admin && (
             <li>
               <Link href="/dashboard/admin">

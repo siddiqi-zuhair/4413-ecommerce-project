@@ -3,6 +3,7 @@ import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 import Loading from "@/components/Loading";
 import { useAuth } from "@/context/authContext";
+import withAdmin from "@/context/withAdmin";
 
 type User = {
   _id: string;
@@ -15,7 +16,7 @@ type User = {
   stripeCustomerId: string;
 };
 
-export default function UserManagement() {
+function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -122,3 +123,4 @@ export default function UserManagement() {
     </div>
   );
 }
+export default withAdmin(UserManagement);

@@ -7,6 +7,7 @@ import { useAuth } from "@/context/authContext";
 import PdfDocument from "@/components/PdfDocument/PdfDocument";
 import Router from "next/router";
 import router from "next/router";
+import withAdmin from "@/context/withAdmin";
 
 Chart.register(...registerables);
 
@@ -239,4 +240,4 @@ const SalesChart: React.FC = () => {
   );
 };
 
-export default SalesChart;
+export default withAdmin(SalesChart);

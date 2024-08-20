@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Sidebar from "@/components/Sidebar";
 import Loading from "@/components/Loading";
 import toast from "react-hot-toast";
+import withAdmin from "@/context/withAdmin";
 
 type User = {
   _id: string;
@@ -27,7 +28,7 @@ type FormInputs = {
   is_admin: boolean;
 };
 
-export default function EditUser() {
+function EditUser() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -114,6 +115,7 @@ export default function EditUser() {
   const onSubmit: SubmitHandler<FormInputs> = async (data) => {
     try {
       if (!user) return;
+      console.log(data);
       const token = localStorage.getItem("token");
       const response = await fetch(`http://localhost:5000/users/${id}`, {
         method: "PATCH",
@@ -323,3 +325,5 @@ export default function EditUser() {
     </div>
   );
 }
+
+export default withAdmin(EditUser)
