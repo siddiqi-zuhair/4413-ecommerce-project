@@ -1,23 +1,12 @@
+//@ts-ignore
 const supertest = require("supertest");
+//@ts-ignore
 const app = require("../server");
 const { MongoMemoryServer }  = require('mongodb-memory-server');
 const mongoose = require('mongoose');
 const Product = require('../models/Product');
 
 describe('product', () => {
-    let mongoServer;
-
-    beforeAll(async () => { 
-        mongoServer = await MongoMemoryServer.create();
-        await mongoose.connect(mongoServer.getUri());
-    });
-
-    afterAll(async () => {
-        await mongoose.disconnect();
-        await mongoose.connection.close();
-        await mongoServer.stop();
-    });
-
     describe('get product', () => { 
         describe('given the product does not exist', () => { 
             it('should return a 404', async () => {
@@ -42,7 +31,7 @@ describe('product', () => {
                 });
                 await newProduct.save();
         
-                // Make a request to your API
+                // Make a supertest to your API
                 const response = await supertest(app)
                     .get(`/products/${newProduct._id}`)
                     .expect(200);
@@ -188,7 +177,7 @@ describe('product', () => {
         });
 
         describe('given all valid product IDs', () => {
-            it('should return a 200 and all requested products', async () => {
+            it('should return a 200 and all supertested products', async () => {
                 const product1 = await Product.create({
                     name: 'Product 1',
                     description: 'Description 1',

@@ -31,7 +31,9 @@ export default function Product() {
 
   const fetchProduct = async () => {
     try {
-      const res = await fetch("http://localhost:5000/products/" + param);
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/products/` + param
+      );
 
       if (!res.ok) {
         throw new Error("Product not found");
@@ -119,7 +121,9 @@ export default function Product() {
       // User is logged in
       try {
         // Fetch the user's cart from localhost:5000
-        let response = await fetch(`http://localhost:5000/carts/${user._id}`);
+        let response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/carts/${user._id}`
+        );
         let cart = await response.json();
         if (!response.ok) {
           // If the cart doesn't exist, create a new one
@@ -129,13 +133,16 @@ export default function Product() {
             totalPrice: product.price * quantity,
             dateOrdered: new Date(),
           };
-          response = await fetch("http://localhost:5000/carts", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(cart),
-          });
+          response = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/carts`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(cart),
+            }
+          );
         } else {
           // Cart exists, update it
           let itemExists = false;
@@ -162,13 +169,16 @@ export default function Product() {
 
           cart.totalPrice += product.price * quantity;
 
-          response = await fetch(`http://localhost:5000/carts/${user._id}`, {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(cart),
-          });
+          response = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/carts/${user._id}`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(cart),
+            }
+          );
         }
 
         if (response.ok) {

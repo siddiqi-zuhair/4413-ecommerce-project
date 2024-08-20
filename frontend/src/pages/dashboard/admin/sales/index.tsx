@@ -41,7 +41,9 @@ const toName = (month: string): string => {
 };
 
 const fetchSalesHistory = async (): Promise<SalesByDay> => {
-  const response = await fetch("http://localhost:5000/orders/sales");
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/orders/sales`
+  );
   const data = await response.json();
 
   if (!Array.isArray(data)) {

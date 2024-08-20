@@ -16,7 +16,7 @@ export default function Catalog() {
   const [items, setItems] = useState<Item[]>([]);
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   const fetchItems = async () => {
-    const res = await fetch("http://localhost:5000/products");
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products`);
     let data = await res.json();
     // Remove items that have a quantity of 0 directly from the data array
     data = data.filter((item: Item) => item.quantity > 0);
@@ -37,7 +37,6 @@ export default function Catalog() {
     const filteredItems = items.filter((item) =>
       item.name.toLowerCase().includes(keyword.toLowerCase())
     );
-    console.log(filteredItems);
     setFilteredItems(filteredItems);
   };
   useEffect(() => {

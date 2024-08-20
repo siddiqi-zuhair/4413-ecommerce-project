@@ -35,7 +35,9 @@ function EditProduct() {
 
   const fetchProduct = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/products/${id}`);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${id}`
+      );
       const data = await response.json();
       setProduct(data);
       setUpdatedProduct(data);
@@ -55,14 +57,17 @@ function EditProduct() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/products/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(updatedProduct),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatedProduct),
+        }
+      );
 
       if (response.ok) {
         toast.success("Product updated successfully!");

@@ -23,22 +23,25 @@ export default function SignUp() {
 
   const onSubmit: SubmitHandler<ContactFormInputs> = async (data) => {
     try {
-      const response = await fetch("http://localhost:5000/users/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: data.username,
-          password: data.password,
-          email: data.email,
-          first_name: data.firstName,
-          last_name: data.lastName,
-          phone_number: data.phoneNumber,
-          default_address: data.address,
-          is_admin: false,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/signup`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: data.username,
+            password: data.password,
+            email: data.email,
+            first_name: data.firstName,
+            last_name: data.lastName,
+            phone_number: data.phoneNumber,
+            default_address: data.address,
+            is_admin: false,
+          }),
+        }
+      );
 
       if (response.ok) {
         router.push("/signin");
@@ -58,7 +61,7 @@ export default function SignUp() {
   const checkEmail = async (email: string) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/users/email/${email}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/email/${email}`
       );
       const data = await response.json();
       return data.exists;
@@ -71,7 +74,7 @@ export default function SignUp() {
   const checkUsername = async (username: string) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/users/username/${username}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/username/${username}`
       );
       const data = await response.json();
       return data.exists;
@@ -127,12 +130,13 @@ export default function SignUp() {
               type="text"
               id="username"
               placeholder="Username"
-              {...register("username", { required: "Username is required", 
-              validate: async (value) => {
-                const exists = await checkUsername(value);
-                return !exists || "Username already in use.";
-              }
-            })}
+              {...register("username", {
+                required: "Username is required",
+                validate: async (value) => {
+                  const exists = await checkUsername(value);
+                  return !exists || "Username already in use.";
+                },
+              })}
               className={`w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.username ? "border-red-500" : ""
               }`}
@@ -208,7 +212,7 @@ export default function SignUp() {
             )}
           </div>
           <div>
-        <input
+            <input
               type="password"
               id="password"
               placeholder="Password"

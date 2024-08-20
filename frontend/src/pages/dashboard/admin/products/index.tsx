@@ -25,7 +25,9 @@ function ManageProducts() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:5000/products");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/products`
+      );
       const data = await response.json();
       setProducts(data);
       setLoading(false);
@@ -43,12 +45,16 @@ function ManageProducts() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/products/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      NEXT_PUBLIC_BACKEND_URL;
+      const response = await fetch(
+        `${process.env.BACKEND_URL}/products/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         setProducts(products.filter((product) => product._id !== id));

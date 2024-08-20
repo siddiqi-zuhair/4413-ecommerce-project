@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import { useRouter } from 'next/router';
-import Sidebar from '@/components/Sidebar';
-import withAdmin from '@/context/withAdmin';
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import { useRouter } from "next/router";
+import Sidebar from "@/components/Sidebar";
+import withAdmin from "@/context/withAdmin";
+import toast from "react-hot-toast";
 
 function CreateProduct() {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [platform, setPlatform] = useState('');
-  const [cover, setCover] = useState('');
-  const [photoURL, setPhotoURL] = useState('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [platform, setPlatform] = useState("");
+  const [cover, setCover] = useState("");
+  const [photoURL, setPhotoURL] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
-  const [videoURL, setVideoURL] = useState('');
+  const [videoURL, setVideoURL] = useState("");
   const [videos, setVideos] = useState<string[]>([]);
   const [quantity, setQuantity] = useState(0);
   const [price, setPrice] = useState(0);
@@ -21,24 +21,26 @@ function CreateProduct() {
   const handleAddPhoto = () => {
     if (photoURL) {
       setPhotos([...photos, photoURL]);
-      setPhotoURL('');
+      setPhotoURL("");
     }
   };
 
   const handleAddVideo = () => {
     if (videoURL) {
       // Convert the YouTube URL to embed format
-      const videoID = videoURL.split('v=')[1];
-      const ampersandPosition = videoID.indexOf('&');
-      const formattedVideoURL = ampersandPosition !== -1 ? videoID.substring(0, ampersandPosition) : videoID;
+      const videoID = videoURL.split("v=")[1];
+      const ampersandPosition = videoID.indexOf("&");
+      const formattedVideoURL =
+        ampersandPosition !== -1
+          ? videoID.substring(0, ampersandPosition)
+          : videoID;
       const embedURL = `youtube.com/embed/${formattedVideoURL}`;
-      
+
       setVideos([...videos, embedURL]);
-      setVideoURL('');
+      setVideoURL("");
     }
   };
-  
-  
+
   const handleRemovePhoto = (index: number) => {
     setPhotos(photos.filter((_, i) => i !== index));
   };
@@ -63,38 +65,41 @@ function CreateProduct() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-        alert('Unauthorized');
-        return;
+      alert("Unauthorized");
+      return;
     }
 
     const productData = {
-        name,
-        description,
-        platform: platform.split(',').map(p => p.trim()), 
-        cover,
-        quantity: Number(quantity),
-        price: Number(price),
-        photos,
-        videos,
+      name,
+      description,
+      platform: platform.split(",").map((p) => p.trim()),
+      cover,
+      quantity: Number(quantity),
+      price: Number(price),
+      photos,
+      videos,
     };
 
-    const response = await fetch('http://localhost:5000/products/createProductFromAdmin', {
-        method: 'POST',
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/products/createProductFromAdmin`,
+      {
+        method: "POST",
         headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(productData),
-    });
+      }
+    );
 
     if (response.ok) {
-        toast.success('Product created successfully!');
-        router.push('/dashboard/admin/products');
+      toast.success("Product created successfully!");
+      router.push("/dashboard/admin/products");
     } else {
-        const errorMessage = await response.text();
-        alert(`Failed to create product. Error: ${errorMessage}`);
+      const errorMessage = await response.text();
+      alert(`Failed to create product. Error: ${errorMessage}`);
     }
   };
 
@@ -105,7 +110,12 @@ function CreateProduct() {
         <h1 className="text-3xl font-bold mb-4">Create Product</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Name
+            </label>
             <input
               type="text"
               id="name"
@@ -115,7 +125,12 @@ function CreateProduct() {
             />
           </div>
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Description
+            </label>
             <input
               type="text"
               id="description"
@@ -125,7 +140,12 @@ function CreateProduct() {
             />
           </div>
           <div>
-            <label htmlFor="platform" className="block text-sm font-medium text-gray-700">Platform</label>
+            <label
+              htmlFor="platform"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Platform
+            </label>
             <input
               type="text"
               id="platform"
@@ -136,7 +156,12 @@ function CreateProduct() {
             />
           </div>
           <div>
-            <label htmlFor="cover" className="block text-sm font-medium text-gray-700">Cover Image URL</label>
+            <label
+              htmlFor="cover"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Cover Image URL
+            </label>
             <input
               type="text"
               id="cover"
@@ -146,7 +171,12 @@ function CreateProduct() {
             />
           </div>
           <div>
-            <label htmlFor="photoURL" className="block text-sm font-medium text-gray-700">Photos (Image URLs)</label>
+            <label
+              htmlFor="photoURL"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Photos (Image URLs)
+            </label>
             <div className="flex space-x-2">
               <input
                 type="text"
@@ -165,7 +195,11 @@ function CreateProduct() {
             </div>
             <div className="mt-4 flex space-x-2">
               {photos.map((photo, index) => (
-                <div key={index} className="relative" style={{ width: '100px', height: '100px' }}>
+                <div
+                  key={index}
+                  className="relative"
+                  style={{ width: "100px", height: "100px" }}
+                >
                   <img
                     src={photo}
                     alt={`Photo ${index}`}
@@ -184,7 +218,12 @@ function CreateProduct() {
             </div>
           </div>
           <div>
-            <label htmlFor="videoURL" className="block text-sm font-medium text-gray-700">Videos (Youtube Videos)</label>
+            <label
+              htmlFor="videoURL"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Videos (Youtube Videos)
+            </label>
             <div className="flex space-x-2">
               <input
                 type="text"
@@ -208,7 +247,7 @@ function CreateProduct() {
                     src={`https://${video}`}
                     title={`Video ${index}`}
                     className="w-full h-auto"
-                    style={{ maxWidth: '500px', maxHeight: '500px' }}
+                    style={{ maxWidth: "500px", maxHeight: "500px" }}
                     allowFullScreen
                   ></iframe>
                   <button
@@ -223,7 +262,12 @@ function CreateProduct() {
             </div>
           </div>
           <div>
-            <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">Quantity</label>
+            <label
+              htmlFor="quantity"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Quantity
+            </label>
             <input
               type="number"
               id="quantity"
@@ -233,7 +277,12 @@ function CreateProduct() {
             />
           </div>
           <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price</label>
+            <label
+              htmlFor="price"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Price
+            </label>
             <input
               type="number"
               id="price"
@@ -276,4 +325,4 @@ function CreateProduct() {
     </div>
   );
 }
-export default withAdmin(CreateProduct)
+export default withAdmin(CreateProduct);

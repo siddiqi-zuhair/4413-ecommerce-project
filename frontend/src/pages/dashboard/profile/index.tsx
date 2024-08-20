@@ -64,7 +64,7 @@ export default function EditProfile() {
         return "User not found";
       }
       const response = await fetch(
-        `http://localhost:5000/users/email/${email}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/email/${email}`
       );
       const data = await response.json();
 
@@ -83,7 +83,7 @@ export default function EditProfile() {
         return "User not found";
       }
       const response = await fetch(
-        `http://localhost:5000/users/username/${username}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/username/${username}`
       );
       const data = await response.json();
       if (data.exists && username === user.username) {
@@ -102,14 +102,17 @@ export default function EditProfile() {
       return;
     }
 
-    const response = await fetch("http://localhost:5000/users/me", {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/me`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      }
+    );
 
     if (response.ok) {
       toast.success("Profile updated successfully!");

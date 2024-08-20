@@ -31,7 +31,9 @@ export default function Header() {
       }
     } else {
       try {
-        let response = await fetch(`http://localhost:5000/carts/${user._id}`);
+        let response = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/carts/${user._id}`
+        );
         let cart = await response.json();
         let quantity = 0;
 

@@ -29,7 +29,9 @@ function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch("http://localhost:5000/users");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users`
+      );
       const data = await response.json();
       setUsers(data);
       setLoading(false);
@@ -47,12 +49,15 @@ function UserManagement() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/users/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         setUsers(users.filter((user) => user._id !== id));

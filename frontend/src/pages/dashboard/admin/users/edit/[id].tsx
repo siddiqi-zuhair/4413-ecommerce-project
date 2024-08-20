@@ -62,7 +62,7 @@ function EditUser() {
         return "User not found";
       }
       const response = await fetch(
-        `http://localhost:5000/users/username/${username}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/username/${username}`
       );
       const data = await response.json();
       if (data.exists && username === user.username) {
@@ -80,7 +80,7 @@ function EditUser() {
         return "User not found";
       }
       const response = await fetch(
-        `http://localhost:5000/users/email/${email}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/email/${email}`
       );
       const data = await response.json();
 
@@ -95,7 +95,9 @@ function EditUser() {
 
   const fetchUser = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/users/${id}`);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${id}`
+      );
       const data = await response.json();
       setUser(data);
       setValue("username", data.username);
@@ -117,14 +119,17 @@ function EditUser() {
       if (!user) return;
 
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:5000/users/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
       if (response.ok) {
         toast.success("User updated successfully!");

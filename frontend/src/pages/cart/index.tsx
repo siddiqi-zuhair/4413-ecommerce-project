@@ -34,7 +34,7 @@ export default function Cart() {
     if (!user) {
       localStorage.setItem("cart", JSON.stringify(updatedCart));
     } else {
-      await fetch(`http://localhost:5000/carts/${user._id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/carts/${user._id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -76,7 +76,7 @@ export default function Cart() {
       }));
       localStorage.setItem("cart", JSON.stringify(cartItems));
     } else {
-      await fetch(`http://localhost:5000/carts/${user._id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/carts/${user._id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -101,7 +101,9 @@ export default function Cart() {
         const ids = cartItems.map((item: any) => item.id);
         try {
           const response = await fetch(
-            `http://localhost:5000/products/multiple?ids=${ids.join(",")}`
+            `${
+              process.env.NEXT_PUBLIC_BACKEND_URL
+            }/products/multiple?ids=${ids.join(",")}`
           );
           const data = await response.json();
           productsWithQuantity = data.map((product: any) => {
@@ -122,7 +124,7 @@ export default function Cart() {
       // Fetch cart with products directly from the server
       try {
         const response = await fetch(
-          `http://localhost:5000/carts/user/${user._id}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/carts/user/${user._id}`
         );
         const data = await response.json();
         if (data && data.products) {

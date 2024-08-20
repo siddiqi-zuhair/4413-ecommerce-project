@@ -22,7 +22,7 @@ export default function OrderSuccess({ dashboard }: { dashboard: boolean }) {
   const fetchOrder = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/orders/id/${orderId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/orders/id/${orderId}`
       );
       const data = await response.json();
       setOrder(data);

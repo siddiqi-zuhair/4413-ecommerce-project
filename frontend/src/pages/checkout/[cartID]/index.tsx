@@ -23,7 +23,7 @@ export default function Checkout() {
     try {
       if (!user) return;
       const response = await fetch(
-        `http://localhost:5000/carts/user/${user._id}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/carts/user/${user._id}`
       );
       const data = await response.json();
       if (!data.products || data.products.length === 0) {

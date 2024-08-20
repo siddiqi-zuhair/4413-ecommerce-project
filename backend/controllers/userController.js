@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 
 // Sign-Up Controller
 exports.signUp = async (req, res) => {
@@ -14,7 +15,6 @@ exports.signUp = async (req, res) => {
     phone_number,
     is_admin,
   } = req.body;
-
   try {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -32,6 +32,7 @@ exports.signUp = async (req, res) => {
     const newUser = await user.save();
     res.status(201).json(newUser);
   } catch (err) {
+    console.log(err.message);
     res.status(400).json({ message: err.message });
   }
 };
@@ -46,7 +47,6 @@ exports.signIn = async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log(isMatch);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -66,6 +66,7 @@ exports.signIn = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
+    console.log(user);
     res.json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -116,7 +117,6 @@ exports.updateUser = async (req, res) => {
       phone_number,
       password,
     } = req.body;
-
     if (username) user.username = username;
     if (email) user.email = email;
     if (first_name) user.first_name = first_name;
@@ -137,6 +137,9 @@ exports.updateUser = async (req, res) => {
 
 exports.adminUpdateUser = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404);
+    }
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -152,7 +155,7 @@ exports.adminUpdateUser = async (req, res) => {
       password,
       is_admin,
     } = req.body;
-
+    console.log(req.body);
     if (username) user.username = username;
     if (email) user.email = email;
     if (first_name) user.first_name = first_name;

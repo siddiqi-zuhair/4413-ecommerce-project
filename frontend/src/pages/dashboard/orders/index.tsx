@@ -28,7 +28,9 @@ export default function Orders({ userId }: OrdersProps) {
     if (!user) return;
     setOrdersLoading(true);
     const res = await fetch(
-      `http://localhost:5000/orders/user/${userId ? userId : user._id}`
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/orders/user/${
+        userId ? userId : user._id
+      }`
     );
     const data = await res.json();
 

@@ -7,7 +7,9 @@ export default function Home() {
 
   useEffect(() => {
     const fetchItems = async () => {
-      const res = await fetch("http://localhost:5000/orders/popular/");
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/orders/popular/`
+      );
       const data = await res.json();
       setPopularItems(data);
     };

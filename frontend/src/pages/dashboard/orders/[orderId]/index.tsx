@@ -8,7 +8,9 @@ export default function Order() {
   const { order } = router.query;
 
   const fetchOrder = async () => {
-    const res = await fetch(`http://localhost:5000/orders/${order}`);
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/orders/${order}`
+    );
     const data = await res.json();
   };
   useEffect(() => {

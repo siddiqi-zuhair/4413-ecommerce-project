@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const fetchUser = (token: string) => {
-    fetch("http://localhost:5000/users/me", {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/me`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -86,7 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const cartItems = JSON.parse(localStorageCart);
       try {
         const response = await fetch(
-          `http://localhost:5000/carts/manage/${userID}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/carts/manage/${userID}`,
           {
             method: "POST",
             headers: {
