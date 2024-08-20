@@ -32,7 +32,6 @@ exports.signUp = async (req, res) => {
     const newUser = await user.save();
     res.status(201).json(newUser);
   } catch (err) {
-    console.log(err.message);
     res.status(400).json({ message: err.message });
   }
 };
@@ -66,7 +65,6 @@ exports.signIn = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
-    console.log(user);
     res.json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -138,7 +136,7 @@ exports.updateUser = async (req, res) => {
 exports.adminUpdateUser = async (req, res) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(404);
+      return res.status(404).json({ message: "User not found" });
     }
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -155,7 +153,6 @@ exports.adminUpdateUser = async (req, res) => {
       password,
       is_admin,
     } = req.body;
-    console.log(req.body);
     if (username) user.username = username;
     if (email) user.email = email;
     if (first_name) user.first_name = first_name;
@@ -192,7 +189,7 @@ exports.deleteUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    await user.remove();
+    User.findByIdAndDelete(req.params.id);
     res.json({ message: "User deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });

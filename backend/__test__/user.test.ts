@@ -26,7 +26,6 @@ describe("User API", () => {
         password: "adminpassword",
       });
     token = adminResponse.body.token;
-    console.log("token", token)
     // Sign up a user to be used in PATCH and DELETE tests
     const userResponse = await supertest(app)
       .post("/users/signup")
@@ -149,7 +148,6 @@ describe("User API", () => {
     });
 
     it("should return user details", async () => {
-     console.log(authToken)
       const response = await supertest(app)
         .get("/users/me")
         .set("Authorization", `Bearer ${authToken}`);
@@ -245,9 +243,7 @@ describe("User API", () => {
         .set("Authorization", `Bearer ${token}`)
         .send({
           phone_number: "1122334455",
-        });
-
-      expect(response.statusCode).toBe(404);
+        }).expect(404)
     });
   });
 
@@ -262,7 +258,7 @@ describe("User API", () => {
     });
 
     it("should return error if no token is provided", async () => {
-      const response = await supertest(app).delete(`/${userId}`);
+      const response = await supertest(app).delete(`/users/${userId}`);
 
       expect(response.statusCode).toBe(401);
     });
@@ -272,7 +268,6 @@ describe("User API", () => {
       const response = await supertest(app)
         .delete(`/${invalidId}`)
         .set("Authorization", `Bearer ${token}`);
-
       expect(response.statusCode).toBe(404);
     });
   });

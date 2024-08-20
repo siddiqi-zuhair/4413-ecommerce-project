@@ -45,7 +45,6 @@ function ManageProducts() {
     }
 
     try {
-      NEXT_PUBLIC_BACKEND_URL;
       const response = await fetch(
         `${process.env.BACKEND_URL}/products/${id}`,
         {
