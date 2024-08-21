@@ -13,7 +13,7 @@ type User = {
   default_address: string;
 };
 
-export default function getUser() {
+export default function GetUser() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
