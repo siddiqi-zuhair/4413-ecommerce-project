@@ -80,7 +80,7 @@ export default function SignIn() {
         </form>
         <div className="text-center text-sm mt-4 text-gray-600">
           <p>
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <a href="#" onClick={handleSignUp} className="text-blue-500">
               Create one.
             </a>
