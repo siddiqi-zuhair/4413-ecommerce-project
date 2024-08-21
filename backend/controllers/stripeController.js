@@ -179,8 +179,8 @@ exports.deletePaymentMethod = async (req, res) => {
 
 // Set default payment method
 exports.setDefaultPaymentMethod = async (req, res) => {
-  const paymentMethodId = req.params.paymentMethodId; // Extract paymentMethodId from req.params
-  const userId = req.user.id; // Extract userId from req.user
+  const paymentMethodId = req.params.paymentMethodId;
+  const userId = req.body.userId; // Ensure userId is being passed in the request body
 
   try {
     console.log("Setting default payment method for user ID:", userId);
@@ -188,6 +188,16 @@ exports.setDefaultPaymentMethod = async (req, res) => {
     if (!user || !user.stripeCustomerId) {
       console.error("User or Stripe customer not found");
       return res.status(404).json({ error: "User or Stripe customer not found" });
+    }
+
+    // Check if the payment method is already attached to the customer
+    const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId);
+    if (paymentMethod.customer !== user.stripeCustomerId) {
+      // Attach the payment method to the customer if not already attached
+      await stripe.paymentMethods.attach(paymentMethodId, {
+        customer: user.stripeCustomerId,
+      });
+      console.log(`Payment method ${paymentMethodId} attached to customer ${user.stripeCustomerId}`);
     }
 
     console.log("Updating Stripe customer:", user.stripeCustomerId, "with default payment method:", paymentMethodId);
@@ -203,6 +213,7 @@ exports.setDefaultPaymentMethod = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Helper function to calculate the total order amount
 function calculateOrderAmount(cartItems) {

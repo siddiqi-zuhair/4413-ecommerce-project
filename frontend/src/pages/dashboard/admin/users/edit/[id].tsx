@@ -5,6 +5,11 @@ import Sidebar from "@/components/Sidebar";
 import Loading from "@/components/Loading";
 import toast from "react-hot-toast";
 import withAdmin from "@/context/withAdmin";
+import { loadStripe } from "@stripe/stripe-js";
+import { CardElement, useStripe, useElements, Elements } from "@stripe/react-stripe-js";
+import AdminEditPayment from "@/components/AdminEditPayment";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "");
 
 type User = {
   _id: string;
@@ -340,6 +345,11 @@ function EditUser() {
             Update User
           </button>
         </form>
+        {user?._id && (
+              <Elements stripe={stripePromise}>
+                <AdminEditPayment userId={user._id} />
+              </Elements>
+            )}
       </div>
     </div>
   );
