@@ -28,10 +28,27 @@ function UserManagement() {
   }, []);
 
   const fetchUsers = async () => {
+    const token = localStorage.getItem("token"); // Retrieve the token from localStorage
+    if (!token) {
+      setError("Unauthorized");
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+
       const data = await response.json();
       setUsers(data);
       setLoading(false);

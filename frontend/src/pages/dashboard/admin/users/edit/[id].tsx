@@ -95,9 +95,23 @@ function EditUser() {
 
   const fetchUser = async () => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${id}`
-      );
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Unauthorized");
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5000/users/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+
       const data = await response.json();
       setUser(data);
       setValue("username", data.username);

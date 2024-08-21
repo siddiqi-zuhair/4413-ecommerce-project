@@ -1,5 +1,4 @@
 import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import exp from "constants";
 import router from "next/router";
 import { useEffect, useState } from "react";
 
@@ -13,6 +12,37 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
   const [address, setAddress] = useState(defaultAddress);
   const [isNewAddress, setIsNewAddress] = useState(false);
 
+  useEffect(() => {
+    async function fetchPaymentMethods() {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/stripe/payment-methods/${user_id}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        const data = await response.json();
+        setSavedPaymentMethods(data.paymentMethods || []);
+
+        // Optionally, set the default payment method if you want it pre-selected
+        const defaultMethod = data.paymentMethods.find(
+          (method: any) => method.id === data.defaultPaymentMethodId
+        );
+        if (defaultMethod) {
+          setSelectedPaymentMethod(defaultMethod.id);
+        }
+      } catch (error) {
+        console.error("Error fetching payment methods:", error);
+      }
+    }
+    if (user_id) {
+      fetchPaymentMethods();
+    }
+  }, [user_id]);
+
   const handleAddressChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedValue = event.target.value;
     if (selectedValue === "new") {
@@ -24,23 +54,6 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
     }
   };
 
-  useEffect(() => {
-    async function fetchPaymentMethods() {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/stripe/payment-methods/${user_id}`
-        );
-        const data = await response.json();
-        setSavedPaymentMethods(data.paymentMethods || []);
-      } catch (error) {
-        console.error("Error fetching payment methods:", error);
-      }
-    }
-    if (user_id) {
-      fetchPaymentMethods();
-    }
-  }, [user_id]);
-
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!stripe || !elements) return;
@@ -49,78 +62,107 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
     setError(null);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/stripe/create-checkout-session`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ cartItems: cart, email: email }),
-        }
-      );
-      const { client_secret } = await response.json();
-
-      let paymentMethod;
-
-      if (selectedPaymentMethod) {
-        // Use saved payment method
-        const { error: paymentError } = await stripe.confirmCardPayment(
-          client_secret,
-          {
-            payment_method: selectedPaymentMethod,
-          }
-        );
-        if (paymentError) throw paymentError;
-      } else {
-        // Use new card with CardElement
-        const cardElement = elements.getElement(CardElement);
-        if (!cardElement) return;
-
-        const { error: confirmError } = await stripe.confirmCardPayment(
-          client_secret,
-          {
-            payment_method: {
-              card: cardElement,
-              billing_details: {
-                email,
-                address: {
-                  line1: address,
-                },
-              },
-            },
-          }
-        );
-        if (confirmError) throw confirmError;
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No token found. Please log in again.");
       }
 
-      // On successful payment
-      const orderResponse = await fetch(
-        "${process.env.NEXT_PUBLIC_BACKEND_URL}/orders",
+      // Create checkout session on the backend
+      const response = await fetch(
+        "http://localhost:5000/stripe/create-checkout-session",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            products: cart,
-            user_id,
-            address,
-            purchase_date: new Date(),
-            total: cart.reduce(
-              (acc: any, item: any) => acc + item.price * item.ordered_quantity,
-              0
-            ),
-            payment_intent: client_secret,
+            cartItems: cart,
+            email: email,
+            paymentMethodId: selectedPaymentMethod || undefined,
           }),
         }
       );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Failed to create checkout session");
+      }
+
+      const { client_secret } = await response.json();
+
+      let paymentResult;
+
+      if (selectedPaymentMethod) {
+        // Confirm payment with saved payment method
+        paymentResult = await stripe.confirmCardPayment(client_secret, {
+          payment_method: selectedPaymentMethod,
+        });
+      } else {
+        // Confirm payment with new card
+        const cardElement = elements.getElement(CardElement);
+        if (!cardElement) return;
+
+        paymentResult = await stripe.confirmCardPayment(client_secret, {
+          payment_method: {
+            card: cardElement,
+            billing_details: {
+              email,
+              address: {
+                line1: address,
+              },
+            },
+          },
+        });
+      }
+
+      if (paymentResult.error) {
+        throw new Error(paymentResult.error.message);
+      }
+
+      if (paymentResult.paymentIntent.status !== "succeeded") {
+        throw new Error("Payment was not successful");
+      }
+
+      // On successful payment, create the order on the backend
+      const orderResponse = await fetch("http://localhost:5000/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          products: cart,
+          user_id,
+          address,
+          purchase_date: new Date(),
+          total: cart.reduce(
+            (acc: any, item: any) => acc + item.price * item.ordered_quantity,
+            0
+          ),
+          payment_intent: paymentResult.paymentIntent.id,
+        }),
+      });
+
+      if (!orderResponse.ok) {
+        throw new Error("Failed to create order");
+      }
+
+      const orderData = await orderResponse.json();
+      console.log("Order ID:", orderData._id);
+
+      // Dispatch cart change event and redirect to success page
       const event = new Event("cartChange");
       window.dispatchEvent(event);
-      router.push("/success/" + (await orderResponse.json())._id);
+      router.push("/success/" + orderData._id);
     } catch (error) {
-      console.error("Error processing payment:", error);
-      setError("An error occurred. Please try again.");
+      if (error instanceof Error) {
+        console.error("Error processing payment:", error);
+        setError(error.message || "An error occurred. Please try again.");
+      } else {
+        console.error("Unexpected error:", error);
+        setError("An unexpected error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

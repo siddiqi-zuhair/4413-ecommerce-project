@@ -20,11 +20,12 @@ const router = express.Router();
 router.post("/signin", signIn);
 router.post("/signup", signUp);
 router.get("/me", authenticateToken, getMe);
-router.get("/", getAllUsers);
-router.get("/:id", getUserById);
+router.get("/", authenticateToken, checkAdminRole, getAllUsers); // Restrict access to all users list to admin
+router.get("/:id", authenticateToken, checkAdminRole, getUserById); // Restrict access to specific user details to admin
 router.patch("/me", authenticateToken, updateUser);
-router.delete("/:id", authenticateToken, deleteUser);
+router.delete("/:id", authenticateToken, checkAdminRole, deleteUser); // Restrict deletion to admin
 router.get("/email/:email", checkEmail);
-router.patch("/:id", authenticateToken, checkAdminRole, adminUpdateUser);
+router.patch("/:id", authenticateToken, checkAdminRole, adminUpdateUser); // Ensure only admins can update users
 router.get("/username/:username", checkUsername);
+
 module.exports = router;
