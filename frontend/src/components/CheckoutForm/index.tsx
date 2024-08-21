@@ -16,7 +16,7 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
     async function fetchPaymentMethods() {
       try {
         const response = await fetch(
-          `http://localhost:5000/stripe/payment-methods/${user_id}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/stripe/payment-methods/${user_id}`,
           {
             method: "GET",
             headers: {
@@ -69,7 +69,7 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
 
       // Create checkout session on the backend
       const response = await fetch(
-        "http://localhost:5000/stripe/create-checkout-session",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/stripe/create-checkout-session`,
         {
           method: "POST",
           headers: {
@@ -125,7 +125,7 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
       }
 
       // On successful payment, create the order on the backend
-      const orderResponse = await fetch("http://localhost:5000/orders", {
+      const orderResponse = await fetch('${process.env.NEXT_PUBLIC_BACKEND_URL}/orders', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -16,7 +16,7 @@ const ManagePaymentInfo = () => {
 
     const fetchPaymentMethods = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/stripe/payment-methods/${user._id}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/stripe/payment-methods/${user._id}`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -67,7 +67,7 @@ const ManagePaymentInfo = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/stripe/payment-methods/add`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/stripe/payment-methods/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -93,7 +93,7 @@ const ManagePaymentInfo = () => {
   const handleDeletePaymentMethod = async (paymentMethodId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/stripe/payment-methods/delete/${paymentMethodId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/stripe/payment-methods/delete/${paymentMethodId}`,
         {
           method: "DELETE",
           headers: {
@@ -116,7 +116,7 @@ const ManagePaymentInfo = () => {
   const handleSetDefaultPaymentMethod = async (paymentMethodId: string) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/stripe/payment-methods/default/${paymentMethodId}`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/stripe/payment-methods/default/${paymentMethodId}`,
         {
           method: "POST",
           headers: {
