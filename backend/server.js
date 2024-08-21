@@ -6,7 +6,14 @@ const cors = require("cors");
 const app = express();
 
 // Middleware
-app.use(cors({ origin: "http://localhost:3000", optionsSuccessStatus: 200 }));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    methods: "*",
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // Routes
