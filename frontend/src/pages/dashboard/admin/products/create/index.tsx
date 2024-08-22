@@ -104,7 +104,7 @@ function CreateProduct() {
   };
 
   return (
-    <div className="flex">
+    <div className="flex bg-gray-50 text-gray-600">
       <Sidebar />
       <div className="container mx-auto p-4">
         <h1 className="text-3xl font-bold mb-4">Create Product</h1>
@@ -209,7 +209,7 @@ function CreateProduct() {
                   <button
                     type="button"
                     onClick={() => handleRemovePhoto(index)}
-                    className="absolute top-0 left-0 bg-red-500 text-white rounded-full p-1 text-xs"
+                    className="absolute top-[-10px] left-[-10px] bg-red-500 text-white rounded-full z-10 px-2 py-1 text-sm font-bold"
                   >
                     X
                   </button>
@@ -253,7 +253,7 @@ function CreateProduct() {
                   <button
                     type="button"
                     onClick={() => handleRemoveVideo(index)}
-                    className="absolute top-0 left-0 bg-red-500 text-white rounded-full p-1 text-xs"
+                    className="absolute top-[-10px] left-[-10px] bg-red-500 text-white rounded-full z-10 px-2 py-1 text-sm font-bold"
                   >
                     X
                   </button>

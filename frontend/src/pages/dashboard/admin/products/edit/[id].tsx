@@ -134,9 +134,9 @@ function EditProduct() {
   }
 
   return (
-    <div className="flex">
+    <div className="flex bg-gray-50 text-gray-600">
       <Sidebar />
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-4 ">
         <h1 className="text-3xl font-bold mb-4">Edit Product</h1>
         <form onSubmit={handleUpdate} className="space-y-4">
           <div>
@@ -234,19 +234,18 @@ function EditProduct() {
             >
               Add Photo
             </button>
-            <div className="mt-4 grid grid-cols-4 gap-2">
+            <div className="mt-4 grid grid-cols-4 gap-4">
               {updatedProduct.photos?.map((photo, index) => (
                 <div key={index} className="relative">
                   <img
                     src={photo}
                     alt={`Photo ${index + 1}`}
-                    className="w-full h-auto"
-                    style={{ maxWidth: "100px", maxHeight: "100px" }}
+                    className="w-full h-auto max-h-64 max-w-64"
                   />
                   <button
                     type="button"
                     onClick={() => handleRemovePhoto(index)}
-                    className="absolute top-0 left-0 bg-red-500 text-white rounded-full p-1 text-xs"
+                    className="absolute top-[-10px] left-[-10px] bg-red-500 text-white rounded-full z-10 px-2 py-1 text-sm font-bold"
                   >
                     X
                   </button>
@@ -275,20 +274,19 @@ function EditProduct() {
             >
               Add Video
             </button>
-            <div className="mt-4 grid grid-cols-4 gap-2">
+            <div className="mt-4 grid grid-cols-4 gap-4">
               {updatedProduct.videos?.map((video, index) => (
                 <div key={index} className="relative">
                   <iframe
                     src={`https://${video}`}
                     title={`Video ${index}`}
-                    className="w-full h-auto"
-                    style={{ maxWidth: "200px", maxHeight: "150px" }}
+                    className="w-full h-auto max-w-64 max-h-48"
                     allowFullScreen
                   ></iframe>
                   <button
                     type="button"
                     onClick={() => handleRemoveVideo(index)}
-                    className="absolute top-0 left-0 bg-red-500 text-white rounded-full p-1 text-xs"
+                    className="absolute top-[-10px] left-[-10px] bg-red-500 text-white rounded-full z-10 px-2 py-1 text-sm font-bold"
                   >
                     X
                   </button>

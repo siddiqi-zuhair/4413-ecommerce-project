@@ -74,7 +74,7 @@ function ManageProducts() {
   }
 
   return (
-    <div className="flex">
+    <div className="flex bg-gray-50 text-gray-600">
       <Sidebar />
       <div className="container mx-auto p-4">
         <h1 className="text-3xl font-bold mb-4">Manage Products</h1>
@@ -87,6 +87,7 @@ function ManageProducts() {
         <table className="min-w-full bg-white">
           <thead>
             <tr>
+              <th className="py-2 px-4">Cover</th>
               <th className="py-2 px-4">Name</th>
               <th className="py-2 px-4">Description</th>
               <th className="py-2 px-4">Platform</th>
@@ -98,21 +99,28 @@ function ManageProducts() {
           <tbody>
             {products.map((product) => (
               <tr key={product._id} className="border-t">
+                <td className="py-2 px-4">
+                  <img
+                    src={product.cover}
+                    alt={product.name}
+                    className="w-128 h-auto object-cover"
+                  />
+                </td>
                 <td className="py-2 px-4">{product.name}</td>
                 <td className="py-2 px-4">{product.description}</td>
                 <td className="py-2 px-4">{product.platform.join(", ")}</td>
                 <td className="py-2 px-4">{product.quantity}</td>
                 <td className="py-2 px-4">${product.price.toFixed(2)}</td>
-                <td className="py-2 px-4">
+                <td className="py-2 px-4 flex flex-col gap-2">
                   <Link
                     href={`/dashboard/admin/products/edit/${product._id}`}
-                    className="p-2 bg-blue-500 text-white rounded mr-2"
+                    className=" bg-blue-500 text-white rounded mr-2 px-5 flex justify-center items-center w-32 h-16"
                   >
                     Edit
                   </Link>
                   <button
                     onClick={() => deleteProduct(product._id)}
-                    className="p-2 bg-red-500 text-white rounded"
+                    className="text-white rounded mr-2 px-5 flex justify-center items-center w-32 h-16 bg-red-500 "
                   >
                     Delete
                   </button>
