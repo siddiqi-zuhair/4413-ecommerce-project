@@ -125,7 +125,7 @@ const CheckoutForm = ({ cart, email, defaultAddress, user_id }: any) => {
       }
 
       // On successful payment, create the order on the backend
-      const orderResponse = await fetch('${process.env.NEXT_PUBLIC_BACKEND_URL}/orders', {
+      const orderResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
