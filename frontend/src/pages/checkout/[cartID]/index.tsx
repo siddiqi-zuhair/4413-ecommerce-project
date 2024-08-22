@@ -73,7 +73,7 @@ export default function Checkout() {
   }
 
   // Handle case when the cart is empty
-  if (!cart || (cart.length === 0 && !loading)) {
+  if (cart.length == 0 && !loading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-144px)] bg-gray-100 text-gray-600">
         <h2 className="text-3xl font-bold">

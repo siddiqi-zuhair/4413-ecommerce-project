@@ -1,6 +1,7 @@
 import React, { useState, FormEvent } from "react";
 import { useRouter } from "next/router";
 import { useAuth } from "@/context/authContext";
+import toast from "react-hot-toast";
 
 export default function SignIn() {
   const [username, setUsername] = useState("");
@@ -34,6 +35,7 @@ export default function SignIn() {
       } else {
         const errorText = await response.text();
         console.error("Error signing in:", errorText);
+        toast.error("Error signing in. Please try again.");
       }
     } catch (error) {
       console.error("Error signing in:", error);

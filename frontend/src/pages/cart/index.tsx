@@ -29,17 +29,24 @@ export default function Cart() {
   const removeProduct = async (e: any) => {
     const updatedCart = cart.filter((product) => product._id !== e.target.id);
     setCart(updatedCart);
-
     // Optimistically update localStorage or dispatch changes to the backend
     if (!user) {
       localStorage.setItem("cart", JSON.stringify(updatedCart));
-    } else {
+    } else if (updatedCart.length > 0) {
       await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/carts/${user._id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ products: updatedCart }),
+      });
+    } else {
+      console.log("deleting cart");
+      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/carts/${user._id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
     }
 
