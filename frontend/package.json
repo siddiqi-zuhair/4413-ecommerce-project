@@ -12,6 +12,7 @@
     "@react-pdf/renderer": "^3.4.4",
     "@stripe/react-stripe-js": "^2.7.3",
     "@stripe/stripe-js": "^4.1.0",
+    "4413-ecommerce-project": "file:",
     "chart.js": "^4.4.3",
     "chartjs-adapter-date-fns": "^3.0.0",
     "date-fns": "^3.6.0",

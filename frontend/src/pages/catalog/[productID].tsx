@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Item } from "../../../interfaces/item";
+import { Item } from "../../interfaces/item";
 import { useRouter } from "next/router";
 import Loading from "@/components/Loading";
 import Carousel from "@/components/ImageVideoCarousel";
