@@ -3,7 +3,9 @@ const supertest = require("supertest");
 //@ts-ignore
 const app = require("../server");
 const { MongoMemoryServer }  = require('mongodb-memory-server');
+//@ts-ignore
 const mongoose = require('mongoose');
+//@ts-ignore
 const Product = require('../models/Product');
 
 describe('product', () => {
