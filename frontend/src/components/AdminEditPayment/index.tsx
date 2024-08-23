@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import Loading from "../Loading";
 
 type AdminEditPaymentProps = {
   userId: string;
@@ -114,7 +115,7 @@ const AdminEditPayment = ({ userId }: AdminEditPaymentProps) => {
   };
 
   if (loadingMethods) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   return (

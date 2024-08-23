@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/authContext";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import Loading from "../Loading";
 
 const ManagePaymentInfo = () => {
   const { user, loading, error } = useAuth();
@@ -137,7 +138,7 @@ const ManagePaymentInfo = () => {
   };
 
   if (loading || loadingMethods) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   if (error) {
