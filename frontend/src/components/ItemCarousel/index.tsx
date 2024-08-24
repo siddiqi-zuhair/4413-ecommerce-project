@@ -17,33 +17,35 @@ interface ItemCarouselProps {
 }
 
 const ItemCarousel: React.FC<ItemCarouselProps> = ({ items }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0); // State to track the current index of the carousel
 
   useEffect(() => {
+    // Set up an interval to automatically advance the carousel every 5 seconds
     const intervalId = setInterval(() => {
       setCurrentIndex((prevIndex) => {
-        const nextIndex = (prevIndex + 1) % items.length;
-        scrollTo(nextIndex);
-        return nextIndex;
+        const nextIndex = (prevIndex + 1) % items.length; // Calculate the next index, wrapping around to 0 if necessary
+        scrollTo(nextIndex); // Scroll to the next item
+        return nextIndex; // Update the state with the new index
       });
     }, 5000);
 
-    return () => clearInterval(intervalId); // Cleanup on component unmount
-  }, [items]);
+    return () => clearInterval(intervalId); // Cleanup the interval when the component unmounts
+  }, [items]); // Re-run this effect if the items array changes
 
+  // Function to scroll the carousel to a specific index
   const scrollTo = (index: number) => {
-    const container = document.querySelector(".snap-x");
+    const container = document.querySelector(".snap-x"); // Select the container with the class "snap-x"
     if (container) {
-      const elements = container.querySelectorAll(".snap-center");
-      const target = elements[index] as HTMLElement;
+      const elements = container.querySelectorAll(".snap-center"); // Select all elements with the class "snap-center" inside the container
+      const target = elements[index] as HTMLElement; // Get the target element at the specified index
       if (target) {
         container.scrollTo({
-          left: target.offsetLeft,
-          behavior: "smooth",
+          left: target.offsetLeft, // Scroll to the target element's position
+          behavior: "smooth", // Smooth scrolling effect
         });
       }
     }
-    setCurrentIndex(index);
+    setCurrentIndex(index); // Update the current index state
   };
 
   return (

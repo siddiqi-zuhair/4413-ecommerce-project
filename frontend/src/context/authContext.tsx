@@ -28,62 +28,68 @@ type AuthContextType = {
   logout: () => void;
 };
 
+// Create the authentication context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// AuthProvider component that wraps around parts of the app that need access to authentication state
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false); // Manage authentication state
+  const [user, setUser] = useState<User | null>(null); // Manage the current user object
+  const [loading, setLoading] = useState<boolean>(true); // Manage loading state
+  const [error, setError] = useState<string | null>(null); // Manage error state
+  const router = useRouter(); // Get the Next.js router for navigation
 
+  // Effect to run when the component mounts to check for an existing token and fetch user data
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      fetchUser(token);
+      fetchUser(token); // Fetch user data if token exists
     } else {
-      setLoading(false);
+      setLoading(false); // Stop loading if no token is found
     }
   }, []);
 
+  // Function to fetch user data from the backend
   const fetchUser = (token: string) => {
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/me`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`, // Include the token in the request headers
       },
     })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Failed to fetch user info");
+          throw new Error("Failed to fetch user info"); // Handle non-200 responses
         }
         return response.json();
       })
       .then((data) => {
-        setUser(data);
-        setIsAuthenticated(true);
-        setLoading(false);
-        updateBackendCart(data._id);
+        setUser(data); // Set the user data in state
+        setIsAuthenticated(true); // Mark the user as authenticated
+        setLoading(false); // Stop loading
+        updateBackendCart(data._id); // Sync cart with backend
       })
       .catch((error) => {
         console.error("Error fetching user info:", error);
-        setError("Failed to load user data.");
-        setIsAuthenticated(false);
-        setLoading(false);
-        localStorage.removeItem("token");
+        setError("Failed to load user data."); // Set error message
+        setIsAuthenticated(false); // Mark the user as not authenticated
+        setLoading(false); // Stop loading
+        localStorage.removeItem("token"); // Remove the token if fetching user data fails
       });
   };
 
+  // Function to handle user login
   const login = (token: string) => {
-    localStorage.setItem("token", token);
-    fetchUser(token);
+    localStorage.setItem("token", token); // Store the token in localStorage
+    fetchUser(token); // Fetch user data after setting the token
   };
 
+  // Function to update the cart in the backend if the user has items stored locally
   const updateBackendCart = async (userID: any) => {
-    const localStorageCart = localStorage.getItem("cart");
+    const localStorageCart = localStorage.getItem("cart"); // Get the cart from localStorage
     if (localStorageCart) {
-      const cartItems = JSON.parse(localStorageCart);
+      const cartItems = JSON.parse(localStorageCart); // Parse the cart items
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/carts/manage/${userID}`,
@@ -92,41 +98,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ products: cartItems }),
+            body: JSON.stringify({ products: cartItems }), // Send cart items to backend
           }
         );
         if (!response.ok) {
-          throw new Error("Failed to update cart");
+          throw new Error("Failed to update cart"); // Handle cart update failure
         }
       } catch (error) {
         console.error("Error updating cart:", error);
       }
-      localStorage.removeItem("cart");
-      const event = new Event("cartChange");
+      localStorage.removeItem("cart"); // Clear the cart in localStorage after syncing
+      const event = new Event("cartChange"); // Dispatch a custom event to notify other parts of the app
       window.dispatchEvent(event);
     }
   };
 
+  // Function to handle user logout
   const logout = () => {
-    localStorage.removeItem("token");
-    setIsAuthenticated(false);
-    setUser(null);
-    router.push("/signin");
+    localStorage.removeItem("token"); // Remove the token from localStorage
+    setIsAuthenticated(false); // Mark the user as not authenticated
+    setUser(null); // Clear the user object in state
+    router.push("/signin"); // Redirect to the sign-in page
   };
 
+  // Provide the authentication context to child components
   return (
     <AuthContext.Provider
       value={{ isAuthenticated, user, loading, error, login, logout }}
     >
-      {children}
+      {children} 
     </AuthContext.Provider>
   );
 };
 
+// Custom hook to consume the authentication context
 export const useAuth = () => {
-  const context = useContext(AuthContext);
+  const context = useContext(AuthContext); // Get the context value
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error("useAuth must be used within an AuthProvider"); // Ensure hook is used within the AuthProvider
   }
-  return context;
+  return context; // Return the context value
 };

@@ -4,27 +4,32 @@ import { useState, useEffect, useRef } from "react";
 interface CarouselProps {
   items: Array<{ type: string; url: string }>;
 }
+// Define the Carousel component, which accepts a list of items as a prop
 const Carousel = ({ items }: CarouselProps) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const carouselRef = useRef<HTMLDivElement>(null);
+  const [currentIndex, setCurrentIndex] = useState(0); // State to track the current index of the carousel
+  const carouselRef = useRef<HTMLDivElement>(null); // Ref to the carousel container element
 
+  // Function to extract the YouTube video thumbnail from a URL
   const getThumbnail = (url: string) => {
-    let videoId = url.split("v=")[1];
-    if (!videoId) videoId = url.split("embed/")[1];
-    return `https://img.youtube.com/vi/${videoId}/0.jpg`;
+    let videoId = url.split("v=")[1]; // Extract the video ID from a typical YouTube URL
+    if (!videoId) videoId = url.split("embed/")[1]; // Handle embedded YouTube URLs
+    return `https://img.youtube.com/vi/${videoId}/0.jpg`; // Return the URL to the video thumbnail
   };
+
+  // Event handler for when the user scrolls the carousel
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const element = event.currentTarget;
-    const newIndex = Math.round(element.scrollLeft / element.clientWidth);
-    setCurrentIndex(newIndex);
+    const newIndex = Math.round(element.scrollLeft / element.clientWidth); // Calculate the new index based on the scroll position
+    setCurrentIndex(newIndex); // Update the current index state
   };
 
+  // Function to scroll the carousel to a specific index
   const scrollToIndex = (index: number) => {
     const element = carouselRef.current;
     if (element) {
       element.scrollTo({
-        left: index * element.clientWidth,
-        behavior: "smooth",
+        left: index * element.clientWidth, // Calculate the position to scroll to based on the index
+        behavior: "smooth", // Smooth scrolling animation
       });
     }
   };

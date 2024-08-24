@@ -7,6 +7,7 @@ type WithAdminProps = {
   children: React.ReactNode;
 };
 
+// Check if user is Admin
 function withAdmin<T extends WithAdminProps>(
   WrappedComponent: React.ComponentType<T>
 ) {

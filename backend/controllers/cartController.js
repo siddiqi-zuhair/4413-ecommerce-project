@@ -26,32 +26,51 @@ exports.getCartById = async (req, res) => {
   }
 };
 
+// Fetch user cart when they login
 exports.manageCart = async (req, res) => {
-  ("we are managing the cart");
   try {
+    // Find the cart associated with the user ID from the request parameters
     const cart = await Cart.findOne({ user_id: req.params.id });
+
+    // If no cart is found, create a new one
     if (!cart) {
+      // Create a new Cart instance with the user ID and products from request parameters
       const cart = new Cart({
         user_id: req.params.id,
-        products: req.params.products,
+        products: req.params.products, // Typically, this should come from req.body, not req.params
       });
+
+      // Save the new cart to the database
       const newCart = await cart.save();
+
+      // Respond with the newly created cart and a 201 status code
       res.status(201).json(newCart);
     } else {
+      // If a cart already exists, update it with new products
+
+      // Extract products from the request body
       const { products } = req.body;
+
+      // Combine existing products with the new products from the request body
       let newCart = cart.products;
       if (products != null) newCart = newCart.concat(products);
+
+      // Update the existing cart in the database with the combined product list
       const updatedCart = await Cart.findOneAndUpdate(
-        { user_id: req.params.id },
-        { products: newCart },
-        { new: true }
+        { user_id: req.params.id }, // Find cart by user ID
+        { products: newCart },      // Set the new products array
+        { new: true }               // Return the updated document
       );
+
+      // Respond with the updated cart
       res.json(updatedCart);
     }
   } catch (err) {
+    // If an error occurs, respond with a 400 status code and the error message
     res.status(400).json({ message: err.message });
   }
 };
+
 
 exports.getCartWithProducts = async (req, res) => {
   try {

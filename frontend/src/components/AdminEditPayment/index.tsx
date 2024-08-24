@@ -3,114 +3,120 @@ import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import Loading from "../Loading";
 
 type AdminEditPaymentProps = {
-  userId: string;
+  userId: string; // Prop to receive the user ID whose payment methods are being managed
 };
 
 const AdminEditPayment = ({ userId }: AdminEditPaymentProps) => {
-  const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
-  const [loadingMethods, setLoadingMethods] = useState(true);
-  const [newPaymentLoading, setNewPaymentLoading] = useState(false);
-  const stripe = useStripe();
-  const elements = useElements();
+  const [paymentMethods, setPaymentMethods] = useState<any[]>([]); // State to hold the list of payment methods
+  const [loadingMethods, setLoadingMethods] = useState(true); // State to track if payment methods are being loaded
+  const [newPaymentLoading, setNewPaymentLoading] = useState(false); // State to track if a new payment method is being added
+  const stripe = useStripe(); // Hook to get Stripe.js instance
+  const elements = useElements(); // Hook to get Stripe Elements instance
 
   useEffect(() => {
     if (!userId) return;
 
+    // Function to fetch the user's payment methods from the backend
     const fetchPaymentMethods = async () => {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/stripe/payment-methods/${userId}`, {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Send JWT token for authorization
           },
         });
 
         if (!response.ok) {
-          throw new Error("Failed to fetch payment methods");
+          throw new Error("Failed to fetch payment methods"); // Handle unsuccessful fetch
         }
 
-        const data = await response.json();
-        setPaymentMethods(data.paymentMethods);
+        const data = await response.json(); // Parse the JSON response
+        setPaymentMethods(data.paymentMethods); // Update the state with the fetched payment methods
       } catch (error) {
-        console.error("Error fetching payment methods:", error);
+        console.error("Error fetching payment methods:", error); // Log any errors that occur during fetch
       } finally {
-        setLoadingMethods(false);
+        setLoadingMethods(false); // Set loading state to false regardless of success or failure
       }
     };
 
-    fetchPaymentMethods();
+    fetchPaymentMethods(); // Fetch payment methods when the component mounts or when userId changes
   }, [userId]);
 
+  // Function to handle adding a new payment method
   const handleAddPaymentMethod = async (event: React.FormEvent) => {
     event.preventDefault();
-    setNewPaymentLoading(true);
+    setNewPaymentLoading(true); // Set loading state for adding a new payment method
 
     if (!stripe || !elements) {
       console.error("Stripe.js has not loaded yet.");
       return;
     }
 
-    const cardElement = elements.getElement(CardElement);
+    const cardElement = elements.getElement(CardElement); // Get the CardElement instance
     if (!cardElement) {
       return;
     }
 
+    // Create a new payment method using the card details
     const { error, paymentMethod } = await stripe.createPaymentMethod({
       type: "card",
       card: cardElement,
     });
 
     if (error) {
-      console.error(error.message);
+      console.error(error.message); // Log the error if payment method creation fails
       setNewPaymentLoading(false);
       return;
     }
 
     try {
+      // Send the new payment method to the backend to be associated with the user
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/stripe/payment-methods/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify({ paymentMethodId: paymentMethod.id, userId }), // Pass userId in the request body
+        body: JSON.stringify({ paymentMethodId: paymentMethod.id, userId }), // Include payment method ID and user ID
       });
 
       if (!response.ok) {
-        throw new Error("Failed to add payment method");
+        throw new Error("Failed to add payment method"); // Handle unsuccessful addition
       }
 
-      // Refresh the payment methods list
+      // Update the state to include the newly added payment method
       setPaymentMethods([...paymentMethods, paymentMethod]);
-      cardElement.clear();
+      cardElement.clear(); // Clear the card input field
     } catch (error) {
-      console.error("Error adding payment method:", error);
+      console.error("Error adding payment method:", error); // Log any errors that occur during addition
     } finally {
-      setNewPaymentLoading(false);
+      setNewPaymentLoading(false); // Reset loading state after attempting to add payment method
     }
   };
 
+  // Function to handle deleting a payment method
   const handleDeletePaymentMethod = async (paymentMethodId: string) => {
     try {
+      // Send a request to delete the payment method from the backend
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/stripe/payment-methods/delete/${paymentMethodId}`,
         {
           method: "DELETE",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Send JWT token for authorization
           },
-          body: JSON.stringify({ userId }) // Pass userId in the request body
+          body: JSON.stringify({ userId }), // Include the user ID in the request body
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to delete payment method");
+        throw new Error("Failed to delete payment method"); // Handle unsuccessful deletion
       }
 
       // Update the state to remove the deleted payment method
       setPaymentMethods(paymentMethods.filter((pm) => pm.id !== paymentMethodId));
     } catch (error) {
-      console.error("Error deleting payment method:", error);
+      console.error("Error deleting payment method:", error); // Log any errors that occur during deletion
     }
   };
 

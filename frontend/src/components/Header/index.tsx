@@ -3,76 +3,84 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/authContext";
 
 export default function Header() {
-  const [quantity, setQuantity] = useState(0);
-  const { isAuthenticated, user, logout } = useAuth();
+  const [quantity, setQuantity] = useState(0); // State to store the total quantity of items in the cart
+  const { isAuthenticated, user, logout } = useAuth(); // Hook to get authentication details
 
+  // Function to calculate the quantity of items in the cart
   const getQuantity = async () => {
     if (typeof window === "undefined") {
-      return 0;
+      return 0; // Return 0 if the code is running on the server (during SSR)
     }
 
-    if (!user) {
+    if (!user) { // If the user is not logged in
       try {
-        let cart = localStorage.getItem("cart");
+        let cart = localStorage.getItem("cart"); // Retrieve cart from localStorage
         let quantity = 0;
 
         if (cart) {
-          let cartItems = JSON.parse(cart);
+          let cartItems = JSON.parse(cart); // Parse the cart items
 
+          // Sum up the ordered quantities
           for (let i = 0; i < cartItems.length; i++) {
             quantity += parseInt(cartItems[i].ordered_quantity);
           }
         }
 
-        return quantity;
+        return quantity; // Return the calculated quantity
       } catch (error) {
         console.error("Error reading cart from localStorage:", error);
-        return 0;
+        return 0; // Return 0 if there's an error
       }
-    } else {
+    } else { // If the user is logged in
       try {
         let response = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/carts/${user._id}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/carts/${user._id}` // Fetch the cart from the server using the user ID
         );
         let cart = await response.json();
         let quantity = 0;
 
+        // Sum up the ordered quantities from the server response
         if (cart.products && cart.products.length > 0) {
           for (let i = 0; i < cart.products.length; i++) {
             quantity += parseInt(cart.products[i].ordered_quantity);
           }
         }
 
-        return quantity;
+        return quantity; // Return the calculated quantity
       } catch (error) {
         console.error("Error fetching cart from server:", error);
-        return 0;
+        return 0; // Return 0 if there's an error
       }
     }
   };
 
+  // Function to update the cart quantity in the component's state
   const updateQuantity = async () => {
-    const newQuantity = await getQuantity();
+    const newQuantity = await getQuantity(); // Get the latest quantity
     setQuantity(newQuantity); // Update the state with the new quantity
   };
 
+  // useEffect to update the quantity when the component mounts or when the authentication state changes
   useEffect(() => {
     if (typeof isAuthenticated === "undefined") {
-      return; // Wait until the authentication state is known
+      return; // Do nothing if the authentication state is not yet known
     }
 
-    updateQuantity();
+    updateQuantity(); // Update the quantity initially
 
+    // Event listener to handle cart changes
     const handleCartChange = async () => {
       await updateQuantity();
     };
 
-    window.addEventListener("cartChange", handleCartChange);
+    window.addEventListener("cartChange", handleCartChange); // Add event listener
 
     return () => {
-      window.removeEventListener("cartChange", handleCartChange);
+      window.removeEventListener("cartChange", handleCartChange); // Clean up the event listener on component unmount
     };
-  }, [isAuthenticated]);
+  }, [isAuthenticated]); // Dependency array to re-run the effect when the authentication state changes
+
+
 
   return (
     <header className="bg-gray-600 flex items-center justify-between p-4">
