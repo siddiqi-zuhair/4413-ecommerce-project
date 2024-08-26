@@ -33,12 +33,16 @@ export default function Cart() {
     if (!user) {
       localStorage.setItem("cart", JSON.stringify(updatedCart));
     } else if (updatedCart.length > 0) {
+      const cartItems = updatedCart.map((item) => ({
+        id: item._id,
+        ordered_quantity: item.ordered_quantity,
+      }));
       await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/carts/${user._id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ products: updatedCart }),
+        body: JSON.stringify({ products: cartItems }),
       });
     } else {
       console.log("deleting cart");
@@ -83,12 +87,17 @@ export default function Cart() {
       }));
       localStorage.setItem("cart", JSON.stringify(cartItems));
     } else {
+
+      const cartItems = updatedCart.map((item) => ({
+        id: item._id,
+        ordered_quantity: item.ordered_quantity,
+      }));
       await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/carts/${user._id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ products: updatedCart }),
+        body: JSON.stringify({ products: cartItems }),
       });
     }
 
